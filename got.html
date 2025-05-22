@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Thrones Character Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #191919;
+            color: #d3d3d3;
+            margin: 0;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" opacity="0.1"><path d="M50,250c0-110.5,89.5-200,200-200s200,89.5,200,200s-89.5,200-200,200S50,360.5,50,250" fill="none" stroke="%23808080" stroke-width="2"/></svg>');
+            background-repeat: repeat;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(40, 40, 45, 0.8);
+            border: 2px solid #9a8866;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #caa255;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #d3d3d3;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #2a2a30;
+            border: 1px solid #9a8866;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #3a3a40;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .option.selected {
+            background-color: #4a4a50;
+            border-color: #caa255;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #2a2a30;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #caa255;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #caa255;
+            color: #191919;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #d9b266;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #6c6c6c;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #results-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-content {
+            position: relative;
+            background-color: #191919;
+            border: 3px solid #caa255;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(202, 162, 85, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .character-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .character-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid #caa255;
+            margin-bottom: 20px;
+            background-color: #2a2a30;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #9a8866;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            color: #caa255;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .character-description {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .close-results {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: transparent;
+            color: #caa255;
+            border: 1px solid #caa255;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-results:hover {
+            background-color: #caa255;
+            color: #191919;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 350px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .restart-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Which Game of Thrones Character Are You?</h1>
+        
+        <div id="quiz-container" class="quiz-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+            
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            
+            <div class="navigation">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="results-popup">
+        <div class="results-content">
+            <button class="close-results" id="close-results">×</button>
+            
+            <div class="character-result">
+                <div class="character-image" id="character-image">
+                    [Character Image]
+                </div>
+                <h2 class="character-name" id="character-name"></h2>
+                <p class="character-description" id="character-description"></p>
+            </div>
+            
+            <h3 style="text-align: center; color: #caa255;">Your Character Breakdown</h3>
+            <div class="chart-container" id="chart-container"></div>
+            <div class="legend" id="legend"></div>
+            
+            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            {
+                name: "Eddard Stark",
+                description: "You are honorable, steadfast, and committed to your principles above all else. Like Ned, you believe in justice and doing what's right, even when it's difficult. You're loyal to those you lead and always try to protect your family. While your honor guides you, sometimes a more flexible approach might be needed in a world that doesn't always reward virtue.",
+                image: "https://upload.wikimedia.org/wikipedia/en/5/52/Ned_Stark-Sean_Bean.jpg",
+                color: "#606060" // Stark gray
+            },
+            {
+                name: "Jon Snow",
+                description: "You are brooding, brave, and self-sacrificing. Like Jon, you have a strong moral compass and often take on responsibilities even when you haven't asked for them. You stand up for the disadvantaged and are willing to make difficult choices for the greater good. You sometimes struggle with your identity but always try to do what's right, regardless of personal cost.",
+                image: "https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/15329653/Jon_snow.0.1536999998.jpg?quality=90&strip=all&crop=21.875,0,56.25,100",
+                color: "#000000" // Night's Watch black
+            },
+            {
+                name: "Sansa Stark",
+                description: "You are resilient, adaptive, and increasingly politically astute. Like Sansa, you've learned from hardship and grown stronger through adversity. You've developed a keen understanding of people's motives and how to navigate difficult social environments. While appearing gentle, you have inner steel and know how to survive in challenging circumstances.",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqM99BxxK7jgYL1K_e3tK9s85j32ia80Jojg&s",
+                color: "#31708E" // Winter blue
+            },
+            {
+                name: "Arya Stark",
+                description: "You are fierce, independent, and refuse to conform to expectations. Like Arya, you forge your own path and won't be told who to be. You're resourceful, determined, and not afraid to stand up to those more powerful than yourself. Your loyalty to those you love is unwavering, and you'll go to extreme lengths to protect them or avenge wrongs.",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbeXHcJRedrrm1wRlbIGTV9BpJ7GWdoevOGg&s",
+                color: "#3B310B" // Dark brown
+            },
+            {
+                name: "Tyrion Lannister",
+                description: "You are clever, witty, and understand human nature deeply. Like Tyrion, you use your intelligence to compensate for other disadvantages. You see the world clearly, often with a cynical but realistic perspective. Despite facing prejudice, you maintain your sharp mind and sense of humor. You value knowledge and believe in using wisdom rather than brute force.",
+                image: "https://miro.medium.com/v2/resize:fit:1400/1*OtG2bOqXGBQYWqw7Tef_Tg.jpeg",
+                color: "#8B0000" // Lannister crimson
+            },
+            {
+                name: "Daenerys Targaryen",
+                description: "You are determined, passionate, and have the ability to inspire others. Like Daenerys, you have faced adversity but emerged stronger, developing confidence in your own vision. You fight against injustice and believe in breaking oppressive systems. While your intentions are often noble, you must be careful that your determination doesn't blind you to other perspectives.",
+                image: "https://hips.hearstapps.com/hmg-prod/images/screen-shot-2019-04-01-at-1-46-55-pm-1554141170.png?crop=0.549xw:1.00xh;0.347xw,0&resize=1200:*",
+                color: "#7D0541" // Targaryen red/purple
+            },
+            {
+                name: "Jaime Lannister",
+                description: "You are complex, capable of both selfishness and surprising nobility. Like Jaime, you may have made mistakes in your past but believe in the possibility of redemption. You're loyal to those you love and more principled than you initially appear. Over time, you've learned to question the values you were raised with and forge your own moral code.",
+                image: "https://s.yimg.com/ny/api/res/1.2/37WdLykKUqWrzVw8CiRP6g--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTE0NDA-/https://media.zenfs.com/en/esquire_269/7b99f4004df5a02ddc8ccbdd7e79e25e",
+                color: "#DAA520" // Golden
+            },
+            {
+                name: "Bran Stark",
+                description: "You are observant, thoughtful, and see the bigger picture that others miss. Like Bran, you have a calm, detached perspective that allows you to understand complex situations. You value knowledge and truth, sometimes at the expense of emotional connection. You have an old soul and wisdom beyond your years, seeing patterns in history that others overlook.",
+                image: "https://static.hbo.com/content/dam/hbodata/series/game-of-thrones/character/bran-stark-1920.jpg?w=1200",
+                color: "#2E8B57" // Dark green for warging/three-eyed raven
+            }
+        ];
+
+        const questions = [
+            {
+                question: "When faced with a difficult moral choice, you typically:",
+                options: [
+                    { text: "Choose the honorable path regardless of consequences", character: "Eddard Stark" },
+                    { text: "Make the tough choice that protects the most people", character: "Jon Snow" },
+                    { text: "Carefully analyze the political implications first", character: "Sansa Stark" },
+                    { text: "Trust your instincts and act decisively", character: "Arya Stark" },
+                    { text: "Find a clever solution others haven't considered", character: "Tyrion Lannister" },
+                    { text: "Follow your vision of how things should be", character: "Daenerys Targaryen" },
+                    { text: "Initially follow self-interest but reconsider later", character: "Jaime Lannister" },
+                    { text: "Observe patterns from the past to guide decisions", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "Which quality do you value most in yourself?",
+                options: [
+                    { text: "Integrity and living by a strong code", character: "Eddard Stark" },
+                    { text: "Selflessness and willingness to sacrifice", character: "Jon Snow" },
+                    { text: "Patience and strategic thinking", character: "Sansa Stark" },
+                    { text: "Independence and fighting spirit", character: "Arya Stark" },
+                    { text: "Intelligence and wit", character: "Tyrion Lannister" },
+                    { text: "Passion and ability to inspire others", character: "Daenerys Targaryen" },
+                    { text: "Skill and the capacity to change", character: "Jaime Lannister" },
+                    { text: "Wisdom and ability to see the larger picture", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "Your closest friends would describe you as:",
+                options: [
+                    { text: "Trustworthy but sometimes rigid in your beliefs", character: "Eddard Stark" },
+                    { text: "Brave but often taking on too much responsibility", character: "Jon Snow" },
+                    { text: "Perceptive and careful about who you trust", character: "Sansa Stark" },
+                    { text: "Determined and uncompromising", character: "Arya Stark" },
+                    { text: "Clever and entertaining, though sometimes cynical", character: "Tyrion Lannister" },
+                    { text: "Ambitious and charismatic", character: "Daenerys Targaryen" },
+                    { text: "More complex and principled than you first appear", character: "Jaime Lannister" },
+                    { text: "Mysterious and contemplative", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "When someone betrays your trust, you typically:",
+                options: [
+                    { text: "Confront them directly with a fair judgment", character: "Eddard Stark" },
+                    { text: "Feel deeply hurt but try to understand their reasons", character: "Jon Snow" },
+                    { text: "Remember it and become more cautious in the future", character: "Sansa Stark" },
+                    { text: "Never forget and plan to even the score", character: "Arya Stark" },
+                    { text: "Analyze what went wrong and adapt accordingly", character: "Tyrion Lannister" },
+                    { text: "Respond decisively to show strength", character: "Daenerys Targaryen" },
+                    { text: "React strongly but may reconsider after cooling down", character: "Jaime Lannister" },
+                    { text: "See it coming and understand it as part of a larger pattern", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "Your greatest fear is:",
+                options: [
+                    { text: "Failing to protect those who depend on you", character: "Eddard Stark" },
+                    { text: "Not living up to your responsibilities", character: "Jon Snow" },
+                    { text: "Being manipulated or controlled by others", character: "Sansa Stark" },
+                    { text: "Losing your identity or independence", character: "Arya Stark" },
+                    { text: "Having your intelligence or abilities underestimated", character: "Tyrion Lannister" },
+                    { text: "Failing to achieve your destiny or vision", character: "Daenerys Targaryen" },
+                    { text: "Not being able to redeem yourself from past mistakes", character: "Jaime Lannister" },
+                    { text: "Being overwhelmed by knowledge or losing humanity", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "In your free time, you prefer to:",
+                options: [
+                    { text: "Spend time with family or fulfill responsibilities", character: "Eddard Stark" },
+                    { text: "Train or prepare for future challenges", character: "Jon Snow" },
+                    { text: "Observe others and learn social dynamics", character: "Sansa Stark" },
+                    { text: "Develop skills that give you independence", character: "Arya Stark" },
+                    { text: "Read, learn, or engage in witty conversation", character: "Tyrion Lannister" },
+                    { text: "Plan for the future and build connections", character: "Daenerys Targaryen" },
+                    { text: "Perfect your skills or spend time with loved ones", character: "Jaime Lannister" },
+                    { text: "Reflect quietly or observe the world around you", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "How do you view power?",
+                options: [
+                    { text: "A responsibility that comes with clear moral obligations", character: "Eddard Stark" },
+                    { text: "A burden that should be used to protect others", character: "Jon Snow" },
+                    { text: "A complex game requiring careful strategy", character: "Sansa Stark" },
+                    { text: "A tool to achieve justice and independence", character: "Arya Stark" },
+                    { text: "Something that requires intelligence to use properly", character: "Tyrion Lannister" },
+                    { text: "Your rightful destiny and a means to create change", character: "Daenerys Targaryen" },
+                    { text: "Something that can corrupt but also enable good deeds", character: "Jaime Lannister" },
+                    { text: "Less important than knowledge and understanding", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "When working with others, you typically:",
+                options: [
+                    { text: "Lead by example and expect honesty", character: "Eddard Stark" },
+                    { text: "Listen to all sides before making difficult decisions", character: "Jon Snow" },
+                    { text: "Observe carefully and speak strategically", character: "Sansa Stark" },
+                    { text: "Prefer to work alone or with a few trusted allies", character: "Arya Stark" },
+                    { text: "Use your wits to solve problems others can't", character: "Tyrion Lannister" },
+                    { text: "Inspire others with your vision and conviction", character: "Daenerys Targaryen" },
+                    { text: "Contribute your skills while maintaining some distance", character: "Jaime Lannister" },
+                    { text: "Provide unique insights but may seem detached", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "Your response to injustice is to:",
+                options: [
+                    { text: "Uphold the law and proper procedures", character: "Eddard Stark" },
+                    { text: "Protect the vulnerable, even at personal cost", character: "Jon Snow" },
+                    { text: "Remember it and work strategically toward justice", character: "Sansa Stark" },
+                    { text: "Take direct action to right the wrong", character: "Arya Stark" },
+                    { text: "Find clever ways to help the disadvantaged", character: "Tyrion Lannister" },
+                    { text: "Seek to change the system that allowed the injustice", character: "Daenerys Targaryen" },
+                    { text: "Initially ignore it unless it affects you or those you care about", character: "Jaime Lannister" },
+                    { text: "Understand its place in the larger pattern of history", character: "Bran Stark" }
+                ]
+            },
+            {
+                question: "What matters most to you in life?",
+                options: [
+                    { text: "Family honor and doing what is right", character: "Eddard Stark" },
+                    { text: "Protecting others and fulfilling your duty", character: "Jon Snow" },
+                    { text: "Survival and reclaiming what's rightfully yours", character: "Sansa Stark" },
+                    { text: "Personal freedom and achieving your goals", character: "Arya Stark" },
+                    { text: "Being recognized for your true capabilities", character: "Tyrion Lannister" },
+                    { text: "Creating a better world according to your vision", character: "Daenerys Targaryen" },
+                    { text: "Proving your worth and protecting those you love", character: "Jaime Lannister" },
+                    { text: "Understanding the truth and greater purpose", character: "Bran Stark" }
+                ]
+            }
+        ];
+
+        // The rest of the code remains similar to the Harry Potter quiz - functions for quiz logic
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const progressElement = document.getElementById('progress');
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+            
+            // Update progress bar
+            progressElement.style.width = `${(currentQuestion / questions.length) * 100}%`;
+            
+            // Enable/disable prev button
+            prevButton.disabled = currentQuestion === 0;
+            
+            // Update next button text
+            nextButton.textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next';
+            
+            // Display current question
+            questionElement.textContent = questions[currentQuestion].question;
+            
+            // Clear options
+            optionsElement.innerHTML = '';
+            
+            // Add options
+            questions[currentQuestion].options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (answers[currentQuestion] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.textContent = option.text;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionElement);
+            });
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                // No option selected, show warning or force selection
+                alert('Please select an option before continuing.');
+                return;
+            }
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function calculateResults() {
+            const results = {
+                "Eddard Stark": 0,
+                "Jon Snow": 0,
+                "Sansa Stark": 0,
+                "Arya Stark": 0,
+                "Tyrion Lannister": 0,
+                "Daenerys Targaryen": 0,
+                "Jaime Lannister": 0,
+                "Bran Stark": 0
+            };
+            
+            answers.forEach((answer, index) => {
+                const selectedCharacter = questions[index].options[answer].character;
+                results[selectedCharacter]++;
+            });
+            
+            // Convert to percentages
+            const total = questions.length;
+            const percentages = {};
+            
+            for (const character in results) {
+                percentages[character] = Math.round((results[character] / total) * 100);
+            }
+            
+            return percentages;
+        }
+
+        function showResults() {
+            const percentages = calculateResults();
+            const resultsPopup = document.getElementById('results-popup');
+            
+            // Find the top character
+            let topCharacter = "";
+            let topPercentage = 0;
+            
+            for (const character in percentages) {
+                if (percentages[character] > topPercentage) {
+                    topPercentage = percentages[character];
+                    topCharacter = character;
+                }
+            }
+            
+            // Find the character object
+            const characterData = characters.find(char => char.name === topCharacter);
+            
+            // Update the result content
+            document.getElementById('character-name').textContent = characterData.name;
+            document.getElementById('character-description').textContent = characterData.description;
+            
+            // Create proper image element instead of using background-image
+            const imageContainer = document.getElementById('character-image');
+            imageContainer.innerHTML = '';
+            
+            const characterImg = document.createElement('img');
+            characterImg.src = characterData.image;
+            characterImg.alt = characterData.name;
+            characterImg.style.width = '100%';
+            characterImg.style.height = '100%';
+            characterImg.style.objectFit = 'cover';
+            characterImg.style.objectPosition = 'center';
+            characterImg.style.borderRadius = '50%';
+            
+            imageContainer.appendChild(characterImg);
+            
+            // Create chart data
+            const chartData = [];
+            for (const character in percentages) {
+                if (percentages[character] > 0) { // Only show characters with non-zero percentages
+                    const characterObj = characters.find(char => char.name === character);
+                    chartData.push({
+                        name: character,
+                        value: percentages[character],
+                        color: characterObj.color
+                    });
+                }
+            }
+            
+            // Create pie chart
+            createPieChart(chartData);
+            
+            // Create legend
+            createLegend(chartData);
+            
+            // Show the popup
+            resultsPopup.style.display = 'block';
+        }
+
+        function createPieChart(data) {
+            // Clear previous chart
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            
+            // Set dimensions
+            const width = chartContainer.clientWidth || 500;
+            const height = chartContainer.clientHeight || 350;
+            const radius = Math.min(width, height) / 2 * 0.8;
+            
+            // Create SVG
+            const svg = d3.select('#chart-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, ${height / 2})`);
+            
+            // Create pie
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            // Define arc
+            const arc = d3.arc()
+                .innerRadius(radius * 0.4) // Donut hole size
+                .outerRadius(radius);
+            
+            // Enhanced arc for hover effect
+            const arcHover = d3.arc()
+                .innerRadius(radius * 0.4)
+                .outerRadius(radius * 1.08);
+                
+            // Add tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "d3-tooltip")
+                .style("position", "absolute")
+                .style("padding", "8px")
+                .style("background", "#333")
+                .style("color", "#fff")
+                .style("border-radius", "4px")
+                .style("font-size", "12px")
+                .style("pointer-events", "none")
+                .style("opacity", 0);
+                
+            // Add slices with animation
+            const slices = svg.selectAll('path')
+                .data(pie(data))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color)
+                .attr('stroke', '#191919') // Dark border for contrast
+                .attr('stroke-width', 2)
+                .style('transition', 'all 0.3s')
+                .on('mouseover', function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arcHover);
+                        
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    tooltip.html(`${d.data.name}: ${d.data.value}%`)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                 .on('mouseout', function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arc);
+                        
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attrTween('d', function(d) {
+                    const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+                    return function(t) {
+                        return arc(interpolate(t));
+                    };
+                });
+                
+            // Add percentage labels
+            svg.selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .attr('transform', d => {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0]}, ${centroid[1]})`;
+                })
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em') // Vertical alignment
+                .text(d => d.data.value >= 10 ? `${d.data.value}%` : '') // Only show if segment is large enough
+                .style('fill', '#ffffff')
+                .style('font-weight', 'bold')
+                .style('font-size', '14px')
+                .style('text-shadow', '1px 1px 2px rgba(0, 0, 0, 0.7)')
+                .style('pointer-events', 'none') // Prevent text from blocking hover
+                .style('opacity', 0)
+                .transition()
+                .delay((d, i) => 1000 + i * 100)
+                .duration(500)
+                .style('opacity', 1);
+                
+            // Add center label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .text('Your Match')
+                .style('fill', '#d4a44c')
+                .style('font-size', '18px')
+                .style('font-weight', 'bold')
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+        }
+
+        function createLegend(data) {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+            
+            data.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = item.color;
+                
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = `${item.name} (${item.value}%)`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(nameLabel);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+
+        function restartQuiz() {
+            answers = [];
+            currentQuestion = 0;
+            document.getElementById('results-popup').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the first question
+            loadQuestion();
+            
+            // Event listeners
+            document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+            document.getElementById('next-btn').addEventListener('click', nextQuestion);
+            document.getElementById('close-results').addEventListener('click', () => {
+                document.getElementById('results-popup').style.display = 'none';
+            });
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+        });
+    </script>
+</body>
+</html>
+

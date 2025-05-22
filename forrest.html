@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fictional Fate & Personality Tests</title>
+  <style>
+    :root {
+      --primary-color: #2d1b4e;
+      --secondary-color: #6a4c93;
+      --accent-color: #dc2626;
+      --background-color: #0a0a0a;
+      --container-color: #1a1a1a;
+      --border-color: #4c1d95;
+      --text-color: #f8fafc;
+      --header-footer-color: #1e1b4b;
+      --login-color: #7c3aed;
+      --card-bg: linear-gradient(145deg, #1e1b4b, #312e81);
+      --card-hover: linear-gradient(145deg, #312e81, #4c1d95);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--background-color) 0%, #1a1a2e 100%);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--container-color);
+      border: 3px solid var(--primary-color);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+      overflow: hidden;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    nav {
+      background-color: var(--primary-color);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 1.8em;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      margin-left: 30px;
+      padding: 5px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      border-bottom: 2px solid white;
+    }
+
+    header {
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      border-top: 4px solid var(--accent-color);
+      border-bottom: 4px solid var(--accent-color);
+      position: relative;
+    }
+
+    .header-title {
+      font-size: 2.8em;
+      font-weight: 800;
+      margin-bottom: 15px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-subtitle {
+      font-size: 1.5em;
+      font-weight: 400;
+      color: #e2e8f0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Featured Categories Section */
+    .featured-categories {
+      padding: 40px 20px;
+    }
+
+    .category-heading {
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 40px;
+      color: white;
+      position: relative;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .category-heading::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-color), #9333ea);
+      margin: 15px auto 0;
+      border-radius: 2px;
+    }
+
+    /* Login Button & Form */
+    .login-btn {
+      display: inline-block;
+      background-color: var(--login-color);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 5px;
+      margin-left: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: #5f3b1a;
+    }
+
+    .login-section {
+      position: relative;
+      z-index: 100;
+    }
+
+    .login-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      padding: 20px;
+      width: 250px;
+      margin-top: 10px;
+    }
+
+    .login-dropdown.active {
+      display: block;
+    }
+
+    .login-dropdown h3 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .login-form button:hover {
+      background-color: #004c99;
+    }
+
+    .login-links {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .login-links a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    .login-links a:hover {
+      text-decoration: underline;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      color: white;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    /* Category Container Styles */
+    .main-categories {
+      margin-bottom: 60px;
+    }
+
+    .category-container {
+      background: var(--card-bg);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(124, 58, 237, 0.4);
+      margin-bottom: 50px;
+      border: 3px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* FIXED: Changed z-index and pointer-events for the pseudo-element */
+    .category-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+      animation: subtle-glow 8s ease-in-out infinite alternate;
+      z-index: 1; /* Lower z-index */
+      pointer-events: none; /* CRITICAL FIX: Prevent blocking clicks */
+    }
+
+    @keyframes subtle-glow {
+      0% { transform: rotate(0deg) scale(1); }
+      100% { transform: rotate(360deg) scale(1.1); }
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 50px;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 10; /* Higher z-index to ensure clickability */
+    }
+
+    .main-category-image {
+      width: 400px;
+      height: 400px;
+      object-fit: contain;
+      border-radius: 20px;
+      border: 4px solid var(--accent-color);
+      box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      background: #000;
+      padding: 10px;
+    }
+
+    .main-category-image:hover {
+      transform: scale(1.05) rotate(2deg);
+      box-shadow: 0 25px 50px rgba(220, 38, 38, 0.6);
+      border-color: #9333ea;
+    }
+
+    .category-info {
+      flex: 1;
+      text-align: left;
+      position: relative;
+      z-index: 10; /* Ensure clickability */
+    }
+
+    .category-title {
+      font-size: 3.5rem;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      font-weight: bold;
+    }
+
+    .category-description {
+      font-size: 1.4rem;
+      line-height: 1.8;
+      color: #e2e8f0;
+      margin-bottom: 30px;
+    }
+
+    .category-btn {
+      display: inline-block;
+      background: linear-gradient(145deg, var(--accent-color), #9333ea);
+      color: white;
+      text-decoration: none;
+      padding: 18px 40px;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 1.3rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+      position: relative;
+      z-index: 15; /* Even higher z-index for buttons */
+      cursor: pointer; /* Explicit cursor */
+    }
+
+    .category-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.6);
+      background: linear-gradient(145deg, #9333ea, var(--accent-color));
+    }
+
+    .sub-categories {
+      position: relative;
+      margin-top: 40px;
+      padding: 40px;
+      background: rgba(30, 27, 75, 0.3);
+      border-radius: 20px;
+      border: 2px dashed var(--accent-color);
+      backdrop-filter: blur(10px);
+      z-index: 5; /* Ensure proper layering */
+    }
+
+    .sub-categories::before {
+      content: 'Choose Your Adventure';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+      padding: 10px 30px;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 20px;
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      pointer-events: none; /* Prevent blocking clicks */
+    }
+
+    /* Updated Grid Layout: 3 items per row, 2 centered below */
+    .subcategory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 30px;
+      position: relative;
+      z-index: 10; /* Ensure grid is clickable */
+    }
+
+    .subcategory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 30px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .invisible-box {
+      visibility: hidden;
+      height: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Place the two items in columns 1 and 2 */
+    .subcategory-grid .sub-category-box:nth-child(4) {
+      grid-column: 1;
+    }
+
+    .subcategory-grid .sub-category-box:nth-child(5) {
+      grid-column: 2;
+    }
+
+    .sub-category-box {
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      transition: all 0.4s ease;
+      border: 2px solid var(--border-color);
+      position: relative;
+      transform-style: preserve-3d;
+      z-index: 10; /* Ensure boxes are clickable */
+    }
+
+    .sub-category-box:hover {
+      transform: translateY(-15px) rotateX(5deg);
+      box-shadow: 0 25px 60px rgba(124, 58, 237, 0.4);
+      border-color: var(--accent-color);
+    }
+
+    /* FIXED: Added pointer-events: none to prevent blocking */
+    .sub-category-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none; /* CRITICAL FIX */
+      z-index: 1;
+    }
+
+    .sub-category-box:hover::before {
+      opacity: 1;
+    }
+
+    .sub-category-image {
+      width: 100%;
+      height: 250px;
+      object-fit: contain;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid var(--accent-color);
+      background: #000;
+      padding: 10px;
+    }
+
+    .sub-category-box:hover .sub-category-image {
+      transform: scale(1.05);
+    }
+
+    .sub-category-content {
+      padding: 25px;
+      text-align: center;
+      background: var(--card-bg);
+      position: relative;
+      z-index: 10; /* Ensure content is clickable */
+    }
+
+    .sub-category-title {
+      font-size: 1.6rem;
+      color: white;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .sub-category-description {
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .sub-category-btn {
+      background: linear-gradient(145deg, var(--accent-color), #9333ea);
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+      position: relative;
+      z-index: 20; /* HIGHEST z-index for buttons */
+      cursor: pointer; /* Explicit cursor */
+    }
+
+    .sub-category-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(220, 38, 38, 0.5);
+      background: linear-gradient(145deg, #9333ea, var(--accent-color));
+    }
+
+    /* MBTI Personality Test Section */
+    .personality-test {
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 15px;
+      margin: 50px 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border: 2px solid var(--border-color);
+    }
+
+    .personality-test-title {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .personality-test-description {
+      max-width: 800px;
+      margin: 0 auto 30px;
+      font-size: 1.2em;
+      color: #cbd5e1;
+    }
+
+    .personality-image {
+      width: 300px;
+      height: 300px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 20px;
+      margin: 0 auto 25px;
+      border: 4px solid var(--accent-color);
+      box-shadow: 0 15px 30px rgba(220, 38, 38, 0.3);
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .personality-image:hover {
+      transform: scale(1.05);
+      box-shadow: 0 20px 40px rgba(220, 38, 38, 0.5);
+    }
+
+    .take-test-btn {
+      display: inline-block;
+      padding: 15px 35px;
+      background: linear-gradient(145deg, var(--accent-color), #9333ea);
+      color: white;
+      font-size: 1.3em;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+      position: relative;
+      z-index: 15;
+      cursor: pointer;
+    }
+
+    .take-test-btn:hover {
+      background: linear-gradient(145deg, #9333ea, var(--accent-color));
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.6);
+    }
+
+    /* Popup Form Styles */
+    .popup-form {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 350px;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #777;
+    }
+
+    .form-container h3 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .form-container input[type="text"],
+    .form-container input[type="email"],
+    .form-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      font-size: 1em;
+    }
+
+    .form-container input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .form-container input[type="submit"]:hover {
+      background-color: #004c99;
+    }
+
+    .admin-panel {
+      display: none;
+      padding: 40px 20px;
+    }
+
+    .admin-panel h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary-color);
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .results-table th, .results-table td {
+      border: 1px solid #eee;
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    .results-table th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    .results-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .results-table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .admin-login-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .admin-login-btn:hover {
+      opacity: 1;
+    }
+
+    footer {
+      background-color: var(--primary-color);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 50px;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-section {
+      flex: 1;
+      min-width: 200px;
+      margin-bottom: 20px;
+      text-align: left;
+      padding: 0 15px;
+    }
+
+    .footer-section h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 30px;
+      height: 2px;
+      background-color: white;
+    }
+
+    .footer-section a {
+      color: #ddd;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-section a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .copyright {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Media Queries */
+    @media (max-width: 1200px) {
+      .category-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+      }
+
+      .main-category-image {
+        width: 300px;
+        height: 300px;
+      }
+
+      .category-title {
+        font-size: 2.8rem;
+      }
+
+      .subcategory-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .subcategory-grid .sub-category-box:nth-child(4),
+      .subcategory-grid .sub-category-box:nth-child(5) {
+        grid-column: auto;
+        justify-self: center;
+        margin: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .header-title {
+        font-size: 2.2em;
+      }
+
+      .header-subtitle {
+        font-size: 1.2em;
+      }
+
+      .main-category-image {
+        width: 250px;
+        height: 250px;
+      }
+
+      .category-title {
+        font-size: 2.2rem;
+      }
+
+      .category-description {
+        font-size: 1.2rem;
+      }
+
+      .subcategory-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .subcategory-grid .sub-category-box:nth-child(4),
+      .subcategory-grid .sub-category-box:nth-child(5) {
+        grid-column: 1;
+        justify-self: center;
+        margin: 0;
+      }
+
+      .personality-test {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="https://i.pinimg.com/736x/96/16/d5/9616d593d90be28e9c69b9fec05f57fd.jpg" alt="Fictional Fate Logo"> Fictional Fate
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="#movie-quizzes">Movies</a>
+      <a href="#book-quizzes">Books</a>
+      <a href="#personality-tests">Personality</a>
+      <a href="About.html">About</a>
+    </div>
+    <div class="login-section">
+      <a href="#" class="login-btn" id="loginButton">Log In</a>
+      <div class="login-dropdown" id="loginDropdown">
+        <h3>User Login</h3>
+        <form class="login-form">
+          <input type="text" placeholder="Username or Email" required>
+          <input type="password" placeholder="Password" required>
+          <button type="submit">Log In</button>
+        </form>
+        <div class="login-links">
+          <a href="#register">Register</a> | <a href="#forgot">Forgot Password?</a>
+        </div>
+      </div>
+    </div>
+    <div class="mobile-menu-btn">☰</div>
+  </nav>
+
+  <header>
+    <h1 class="header-title">Fictional Fate & Personality Test</h1>
+    <p class="header-subtitle">Discover your fictional character matches and explore your personality traits with our engaging quizzes</p>
+  </header>
+
+  <div class="featured-categories">
+    <h2 class="category-heading">Find Your Character Match</h2>
+
+    <!-- Movie Characters Section -->
+    <div class="main-categories">
+        <div class="category-container" id="movie-quizzes">
+            <div class="category-header">
+                <img src="https://i.pinimg.com/736x/96/16/d5/9616d593d90be28e9c69b9fec05f57fd.jpg" alt="Movie Characters" class="main-category-image">
+                <div class="category-info">
+                    <h2 class="category-title">Movie Character Match</h2>
+                    <p class="category-description">Find your cinematic twin! Discover which movie character shares your personality traits, values, and decision-making style. Take our carefully crafted quizzes based on popular movie franchises.</p>
+                    <a href="#movie-subcategories" class="category-btn">Explore Movie Quizzes</a>
+                </div>
+            </div>
+
+            <!-- Movie Subcategories -->
+            <div class="sub-categories" id="movie-subcategories">
+                <div class="subcategory-grid">
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/2a/19/d4/2a19d437db4995b72049f3cdac8df2d0.jpg" alt="Avengers" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Which Avengers Character Are You?</h3>
+                            <p class="sub-category-description">🦸‍♂️ Ready to assemble? Dive into the Marvel universe and discover your superhero identity! Are you the genius billionaire like Tony Stark, the noble leader like Captain America, or the fierce warrior like Black Widow?</p>
+                            <a href="avengers.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/9d/d2/d9/9dd2d97cc751af35f7d91f1876076199.jpg" alt="Guardians of the Galaxy" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Guardians of the Galaxy Match</h3>
+                            <p class="sub-category-description">🚀 Blast off into cosmic adventure! Are you the charming rogue Star-Lord, the deadly assassin Gamora, or the lovable tree Groot?</p>
+                            <a href="guardians.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/bb/02/5f/bb025ff13f06579a952ef6d9ea3972b6.jpg" alt="Pirates of the Caribbean" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Pirates of the Caribbean</h3>
+                            <p class="sub-category-description">⚓ Ahoy, matey! Set sail on the high seas! Will you sail with the cunning Captain Jack Sparrow or fight alongside the brave Elizabeth Swann?</p>
+                            <a href="pirates.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/88/56/4f/88564fb3a6a56236d00851382b59a036.jpg" alt="Stranger Things" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Stranger Things Personality</h3>
+                            <p class="sub-category-description">🧙‍♀️ Welcome to Hawkins! Enter the Upside Down world of mystery! Are you the powerful Eleven, the brave Mike, or the witty Dustin?</p>
+                            <a href="st.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/0d/7d/9e/0d7d9e34836f460b2ca04f940aa64134.jpg" alt="Jurassic Park" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Jurassic Park Character Match</h3>
+                            <p class="sub-category-description">🦕 Life finds a way! Step into the prehistoric world where dinosaurs rule! Are you the brilliant Dr. Grant or the charismatic Dr. Malcolm?</p>
+                            <a href="jurassic.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Characters Section -->
+    <div class="main-categories">
+        <div class="category-container" id="book-quizzes">
+            <div class="category-header">
+                <img src="https://i.pinimg.com/736x/3e/28/c5/3e28c509f6a9d3637a7a7aa3f8a28a00.jpg" alt="Book Characters" class="main-category-image">
+                <div class="category-info">
+                    <h2 class="category-title">Book Character Match</h2>
+                    <p class="category-description">Find your literary doppelgänger! Our book character quizzes will help you discover which character from classic and popular literature most closely matches your personality, values, and life approach.</p>
+                    <a href="#book-subcategories" class="category-btn">Explore Book Quizzes</a>
+                </div>
+            </div>
+
+            <!-- Book Subcategories -->
+            <div class="sub-categories" id="book-subcategories">
+                <div class="subcategory-grid">
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/02/01/a4/0201a4ee878fa1227594fe954c98670a.jpg" alt="Harry Potter" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Harry Potter Character Match</h3>
+                            <p class="sub-category-description">⚡ Welcome to Hogwarts! Cast your spell and discover your magical identity! Are you the brave Harry Potter, the brilliant Hermione Granger, or the loyal Ron Weasley?</p>
+                            <a href="harry.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/f3/6b/9d/f36b9d281433c5a9a2452c1873e8617c.jpg" alt="Game of Thrones" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Game of Thrones Character</h3>
+                            <p class="sub-category-description">🐉 Winter is coming! Enter the epic world of Westeros! Are you the honorable Jon Snow, the fierce Daenerys Targaryen, or the cunning Tyrion Lannister?</p>
+                            <a href="got.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/fd/db/fa/fddbfa18d2afc4ac7f76b1d655bb9315.jpg" alt="Pride and Prejudice" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Pride and Prejudice Match</h3>
+                            <p class="sub-category-description">💕 Enter the elegant world of Jane Austen! Are you the spirited Elizabeth Bennet, the brooding Mr. Darcy, or the gentle Jane?</p>
+                            <a href="pride.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/4e/1e/7f/4e1e7f44455513ff9ebeb2ccf07f7eed.jpg" alt="Lord of the Rings" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Lord of the Rings Character</h3>
+                            <p class="sub-category-description">🧙‍♂️ One quiz to rule them all! Journey to Middle-earth! Are you the brave Frodo, the wise Gandalf, the noble Aragorn, or the loyal Samwise?</p>
+                            <a href="lor.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+
+                    <div class="sub-category-box">
+                        <img src="https://i.pinimg.com/736x/f8/92/4a/f8924a2d054ae05ccfc35a0d7ec3874d.jpg" alt="Chronicles of Narnia" class="sub-category-image">
+                        <div class="sub-category-content">
+                            <h3 class="sub-category-title">Chronicles of Narnia Match</h3>
+                            <p class="sub-category-description">🦁 Welcome to Narnia! Step through the wardrobe! Are you the valiant Peter, the wise Susan, the adventurous Edmund, or the brave Lucy?</p>
+                            <a href="narnia.html" class="sub-category-btn">Take Quiz</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!-- MBTI Personality Test Section -->
+  <div class="personality-test" id="personality-tests">
+    <img src="https://i.pinimg.com/736x/70/c9/1b/70c91b4b670c6e4db0b57e1781bcd6fc.jpg" alt="MBTI Test" class="personality-image">
+    <h2 class="personality-test-title">Myers-Briggs Type Indicator (MBTI) Test</h2>
+    <p class="personality-test-description">🧠 Unlock the secrets of your mind! Discover your psychological preferences and how you perceive the world! The MBTI assessment helps you identify which of the 16 personality types you most closely align with, offering deep insights into your thinking patterns, social interactions, and decision-making processes. Ready to discover who you really are?</p>
+    <a href="mbti.html" class="take-test-btn">Take the MBTI Test</a>
+  </div>
+
+  <div class="popup-form" id="popupForm">
+    <div class="form-container">
+      <button class="close-btn" onclick="closeForm()">✕</button>
+      <h3>Start Your Journey</h3>
+      <form id="userForm">
+        <input type="text" name="name" id="userName" placeholder="Your Name" required>
+        <input type="email" name="email" id="userEmail" placeholder="Your Email" required>
+        <input type="submit" value="Begin" onclick="saveUserInfo(); return false;">
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Login Button -->
+  <div class="admin-login-btn" onclick="openAdminLogin()">Admin</div>
+
+  <!-- Admin Login Popup -->
+  <div class="popup-form" id="adminLoginForm">
+    <div class="form-container">
+      <button class="close-btn" onclick="closeAdminLogin()">✕</button>
+      <h3>Admin Login</h3>
+      <form id="adminForm">
+        <input type="text" id="adminUsername" placeholder="Admin Username" required>
+        <input type="password" id="adminPassword" placeholder="Admin Password" required>
+        <input type="submit" value="Login" onclick="adminLogin(); return false;">
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <h2>Quiz Results</h2>
+    <table class="results-table" id="resultsTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Quiz Type</th>
+          <th>Result</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <!-- Results will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Fictional Fate</h3>
+        <p>Explore your personality and find your fictional character matches with our fun and engaging quizzes.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <a href="index.html">Home</a>
+        <a href="#movie-quizzes">Movie Quizzes</a>
+        <a href="#book-quizzes">Book Quizzes</a>
+        <a href="#personality-tests">Personality Tests</a>
+      </div>
+      <div class="footer-section">
+        <h3>Information</h3>
+        <a href="#about">About Us</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#terms">Terms of Service</a>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Fictional Fate. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Mock database for storing user results (in a real implementation, this would be server-side)
+  let quizResults = JSON.parse(localStorage.getItem('quizResults')) || [];
+
+  // Admin credentials (in a real implementation, this would be securely stored on the server)
+  const adminUser = "admin";
+  const adminPass = "password123";
+
+  // Login dropdown functionality
+  const loginButton = document.getElementById('loginButton');
+  const loginDropdown = document.getElementById('loginDropdown');
+
+  loginButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    loginDropdown.classList.toggle('active');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!loginButton.contains(e.target) && !loginDropdown.contains(e.target)) {
+      loginDropdown.classList.remove('active');
+    }
+  });
+
+  function openForm() {
+    document.getElementById("popupForm").style.display = "flex";
+  }
+
+  function closeForm() {
+    document.getElementById("popupForm").style.display = "none";
+  }
+
+  function openAdminLogin() {
+    document.getElementById("adminLoginForm").style.display = "flex";
+  }
+
+  function closeAdminLogin() {
+    document.getElementById("adminLoginForm").style.display = "none";
+  }
+
+  function adminLogin() {
+    const username = document.getElementById("adminUsername").value;
+    const password = document.getElementById("adminPassword").value;
+
+    if (username === adminUser && password === adminPass) {
+      document.getElementById("adminLoginForm").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+      loadResults();
+    } else {
+      alert("Invalid credentials!");
+    }
+  }
+
+  function loadResults() {
+    const tbody = document.getElementById("resultsBody");
+    tbody.innerHTML = "";
+
+    quizResults.forEach(result => {
+      const row = tbody.insertRow();
+      row.insertCell(0).textContent = result.name;
+      row.insertCell(1).textContent = result.email;
+      row.insertCell(2).textContent = result.quizType;
+      row.insertCell(3).textContent = result.result;
+      row.insertCell(4).textContent = result.date;
+    });
+  }
+
+  function saveUserInfo() {
+    const name = document.getElementById("userName").value;
+    const email = document.getElementById("userEmail").value;
+
+    if (name && email) {
+      localStorage.setItem("currentUser", JSON.stringify({name: name, email: email}));
+      closeForm();
+      alert("Welcome " + name + "! You can now take any quiz.");
+    }
+  }
+
+  function saveQuizResult(quizType, result) {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+      const date = new Date().toLocaleString();
+      const resultEntry = {
+        name: user.name,
+        email: user.email,
+        quizType: quizType,
+        result: result,
+        date: date
+      };
+      quizResults.push(resultEntry);
+      localStorage.setItem("quizResults", JSON.stringify(quizResults));
+    }
+  }
+
+  // Only handle smooth scrolling for internal anchors (links starting with #)
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      // Only prevent default for internal page anchors, not external files
+      if (href.startsWith('#') && document.querySelector(href)) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        target.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  // Show login popup when the page loads
+  window.onload = function() {
+    openForm();
+  };
+</script>
+
+</body>
+</html>

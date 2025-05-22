@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Potter Character Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+    body {
+    font-family: 'Georgia', serif;
+    background-color: #1d1018;
+    color: #e0c9a6;
+    margin: 0;
+    padding: 20px;
+    background-image: url('https://m.media-amazon.com/images/I/71ASXtpvzRL._AC_UF894,1000_QL80_.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(60, 14, 35, 0.8);
+            border: 2px solid #c4a76a;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #d4a44c;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #f0cb97;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #4e1a32;
+            border: 1px solid #c4a76a;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #6e2a44;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .option.selected {
+            background-color: #7d3850;
+            border-color: #d4a44c;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #4e1a32;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #d4a44c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #d4a44c;
+            color: #1d1018;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e7b65c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #6c5a38;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #results-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-content {
+            position: relative;
+            background-color: #1d1018;
+            border: 3px solid #d4a44c;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(212, 164, 76, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .character-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .character-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid #d4a44c;
+            margin-bottom: 20px;
+            background-color: #4e1a32;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #c4a76a;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            color: #d4a44c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .character-description {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .close-results {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: transparent;
+            color: #d4a44c;
+            border: 1px solid #d4a44c;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-results:hover {
+            background-color: #d4a44c;
+            color: #1d1018;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 350px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .restart-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Which Harry Potter Character Are You?</h1>
+        
+        <div id="quiz-container" class="quiz-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+            
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            
+            <div class="navigation">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="results-popup">
+        <div class="results-content">
+            <button class="close-results" id="close-results">×</button>
+            
+            <div class="character-result">
+                <div class="character-image" id="character-image">
+                    [Character Image]
+                </div>
+                <h2 class="character-name" id="character-name"></h2>
+                <p class="character-description" id="character-description"></p>
+            </div>
+            
+            <h3 style="text-align: center; color: #d4a44c;">Your Character Breakdown</h3>
+            <div class="chart-container" id="chart-container"></div>
+            <div class="legend" id="legend"></div>
+            
+            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            {
+                name: "Harry Potter",
+                description: "You're brave, determined, and willing to sacrifice for others. While sometimes impulsive, your loyalty to friends and strong moral compass guide you through challenges. You have natural leadership abilities and fight for what's right, even when it's difficult.",
+                image: "https://i.pinimg.com/736x/a8/4b/62/a84b62808ee56fe56f9485ea96b43009.jpg",
+                color: "#7F0909"
+            },
+            {
+                name: "Ron Weasley",
+                description: "You're loyal, funny, and down-to-earth. While sometimes insecure, your heart is always in the right place. You provide emotional support and comic relief to those around you, and despite occasional jealousy, your friendship remains unwavering.",
+                image: "https://i.pinimg.com/736x/65/fc/b3/65fcb3993dcff57ef817fb9170f22daa.jpg",
+                color: "#D3A625"
+            },
+            {
+                name: "Hermione Granger",
+                description: "You're intelligent, logical, and incredibly hard-working. Your knowledge and quick thinking help solve many problems, though you can sometimes be a perfectionist. You value justice strongly and aren't afraid to stand up for what you believe in.",
+                image: "https://i.pinimg.com/736x/14/cb/f1/14cbf168787184cad5d5a3d8db42065c.jpg",
+                color: "#0E1A40"
+            },
+            {
+                name: "Ginny Weasley",
+                description: "You're fierce, independent, and talented. You know your own mind and aren't afraid to speak it. Though sometimes overlooked, you possess inner strength and determination that makes you a force to be reckoned with when it matters most.",
+                image: "https://i.pinimg.com/736x/88/69/0f/88690fa2975ed496e28da544c8a07991.jpg",
+                color: "#AE2812"
+            },
+            {
+                name: "Draco Malfoy",
+                description: "You're ambitious, clever, and protective of your interests. Though you may appear cold or arrogant, there's more complexity beneath the surface. You struggle with expectations placed upon you and are capable of growth when given the chance.",
+                image: "https://i.pinimg.com/736x/ec/75/89/ec75895bf07d2964eee57e07e84bfcf0.jpg",
+                color: "#5D5D5D"
+            },
+            {
+                name: "Rubeus Hagrid",
+                description: "You have a big heart and fierce loyalty. You see the best in everyone and everything, sometimes to a fault. Your warmth and generosity make others feel instantly welcome, and you value the simple joys in life over material success.",
+                image: "https://i.pinimg.com/736x/db/f5/b1/dbf5b1f7a038edd2a66a6cb73a46ac34.jpg",
+                color: "#4A2511"
+            },
+            {
+                name: "Remus Lupin",
+                description: "You're wise, compassionate, and resilient despite personal struggles. You're an excellent teacher and mentor who understands others' challenges. Though you battle your own demons, you remain kind and refuse to let hardship define you.",
+                image: "https://i.pinimg.com/736x/62/bb/7e/62bb7e98733dfcf0b998eba52f229b66.jpg",
+                color: "#8E6C5A"
+            },
+            {
+                name: "Sirius Black",
+                description: "You're bold, fiercely loyal, and a bit of a rebel. You hate confinement and value freedom above all else. Though sometimes reckless, your devotion to those you love is unwavering, and you're willing to risk everything for them.",
+                image: "https://i.pinimg.com/736x/df/13/a9/df13a94fcda6f18ab6a2a705711adb58.jpg",
+                color: "#303030"
+            },
+    {
+                name: "Neville Longbottom",
+                description: "You're kind-hearted, resilient, and have hidden depths of courage. Though you might initially lack confidence, you grow into your strengths over time. You're loyal to a fault and willing to stand up even to your friends when necessary. Your quiet bravery often goes unnoticed but is truly remarkable.",
+                image: "https://i.pinimg.com/736x/3a/ed/30/3aed30030c58d2fbcef2439fba6b566c.jpg",
+                color: "#f1c40f",
+                
+            },
+
+            {
+                name: "Nymphadora Tonks",
+                description: "You're colorful, adaptable, and not afraid to be different. Your quirky personality and humor light up any room. Though sometimes clumsy, you're a capable fighter when it counts, with a strong sense of justice and a heart full of courage.",
+                image: "https://i.pinimg.com/736x/f0/3c/27/f03c27765cdb56b2f048a17ffefbf3a9.jpg",
+                color: "#9B59B6"
+            }
+        ];
+
+      const questions = [
+            {
+                question: "When facing a difficult situation, you typically:",
+                options: [
+                    { text: "Trust your gut and dive in headfirst", character: "Harry Potter" },
+                    { text: "Research thoroughly and create a detailed plan", character: "Hermione Granger" },
+                    { text: "Stick with your friends and provide support", character: "Ron Weasley" },
+                    { text: "Use your sharp wit and resourcefulness", character: "Ginny Weasley" },
+                    { text: "Consider how the situation might benefit you", character: "Draco Malfoy" },
+                    { text: "Feel anxious but find courage when it really matters", character: "Neville Longbottom" },
+                    { text: "Approach with optimism and an open heart", character: "Rubeus Hagrid" },
+ { text: "Act boldly and worry about consequences later", character: "Sirius Black" },
+                    { text: "Analyze carefully and consider all perspectives", character: "Remus Lupin" },
+                    { text: "Use creativity and adaptability to find unusual solutions", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "Which quality do you value most in yourself?",
+                options: [
+                    { text: "Courage and determination", character: "Harry Potter" },
+                    { text: "Intelligence and knowledge", character: "Hermione Granger" },
+                    { text: "Loyalty and sense of humor", character: "Ron Weasley" },
+                    { text: "Independence and strength", character: "Ginny Weasley" },
+                    { text: "Ambition and family pride", character: "Draco Malfoy" },
+                    { text: "Perseverance and kindness", character: "Neville Longbottom" },
+                    { text: "Compassion and acceptance", character: "Rubeus Hagrid" },
+                    { text: "Free spirit and protectiveness", character: "Sirius Black" },
+                    { text: "Wisdom and patience", character: "Remus Lupin" },
+                    { text: "Adaptability and uniqueness", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "Your friends would describe you as:",
+                options: [
+                    { text: "Brave but sometimes stubborn", character: "Harry Potter" },
+                    { text: "Brilliant but occasionally overbearing", character: "Hermione Granger" },
+                    { text: "Funny and dependable, if sometimes insecure", character: "Ron Weasley" },
+                    { text: "Strong-willed and confident", character: "Ginny Weasley" },
+                    { text: "Sophisticated but standoffish", character: "Draco Malfoy" },
+                    { text: "Underestimated but surprisingly capable", character: "Neville Longbottom" },
+                    { text: "Warm-hearted and occasionally naive", character: "Rubeus Hagrid" },
+                    { text: "Exciting and a bit reckless", character: "Sirius Black" },
+                    { text: "Calming and thoughtful", character: "Remus Lupin" },
+                    { text: "Fun-loving and unpredictable", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "When someone wrongs you, you typically:",
+                options: [
+                    { text: "Confront them directly and honestly", character: "Harry Potter" },
+                    { text: "Plan a careful, justified response", character: "Hermione Granger" },
+                    { text: "Get visibly upset, but forgive eventually", character: "Ron Weasley" },
+                    { text: "Respond with a clever comeback and move on", character: "Ginny Weasley" },
+                    { text: "Remember it and look for ways to get even", character: "Draco Malfoy" },
+                    { text: "Feel hurt but try to understand their perspective", character: "Neville Longbottom" },
+                    { text: "Give them the benefit of the doubt", character: "Rubeus Hagrid" },
+                    { text: "Hold a grudge, especially if they hurt someone you care about", character: "Sirius Black" },
+                    { text: "Try to resolve the conflict calmly and logically", character: "Remus Lupin" },
+                    { text: "Express your feelings openly, then let it go", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "Your greatest fear is:",
+                options: [
+                    { text: "Failing those who depend on you", character: "Harry Potter" },
+                    { text: "Being proven wrong or intellectually inadequate", character: "Hermione Granger" },
+                    { text: "Being overshadowed or left behind", character: "Ron Weasley" },
+                    { text: "Being underestimated or controlled", character: "Ginny Weasley" },
+                    { text: "Failure and disappointing your family", character: "Draco Malfoy" },
+                    { text: "Not being brave enough when it counts", character: "Neville Longbottom" },
+                    { text: "Harm coming to the creatures or people you care about", character: "Rubeus Hagrid" },
+                    { text: "Being caged or having your freedom taken away", character: "Sirius Black" },
+                    { text: "Losing control and hurting others", character: "Remus Lupin" },
+                    { text: "Conformity and being forced to fit in", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "In your free time, you prefer to:",
+                options: [
+                    { text: "Play sports or practice skills with friends", character: "Harry Potter" },
+                    { text: "Read and learn something new", character: "Hermione Granger" },
+                    { text: "Hang out and joke around with close friends", character: "Ron Weasley" },
+                    { text: "Pursue your own interests independently", character: "Ginny Weasley" },
+                    { text: "Socialize with an exclusive group of friends", character: "Draco Malfoy" },
+                    { text: "Quietly pursue hobbies that others might overlook", character: "Neville Longbottom" },
+                    { text: "Care for animals or spend time outdoors", character: "Rubeus Hagrid" },
+                    { text: "Seek adventure and excitement", character: "Sirius Black" },
+                    { text: "Find peaceful moments for reflection", character: "Remus Lupin" },
+                    { text: "Express yourself creatively and try new things", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "How do you approach rules?",
+                options: [
+                    { text: "Follow them generally, but break them when necessary for the greater good", character: "Harry Potter" },
+                    { text: "Respect them, but question those that seem unfair", character: "Hermione Granger" },
+                    { text: "Follow the important ones, but don't stress about minor infractions", character: "Ron Weasley" },
+                    { text: "See them as guidelines that sometimes need challenging", character: "Ginny Weasley" },
+                    { text: "Follow rules that benefit you, find loopholes in others", character: "Draco Malfoy" },
+                    { text: "Try to follow them but will break them to help friends", character: "Neville Longbottom" },
+                    { text: "Sometimes overlook them with good intentions", character: "Rubeus Hagrid" },
+                    { text: "See many rules as unnecessary restrictions", character: "Sirius Black" },
+                    { text: "Understand their purpose but judge each case individually", character: "Remus Lupin" },
+                    { text: "Bend them creatively when they limit your self-expression", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "When working in a group, you typically:",
+                options: [
+                    { text: "Take charge when nobody else will", character: "Harry Potter" },
+                    { text: "Organize the plan and make sure everyone understands", character: "Hermione Granger" },
+                    { text: "Support the leader and keep morale high", character: "Ron Weasley" },
+                    { text: "Contribute confidently and speak up when needed", character: "Ginny Weasley" },
+                    { text: "Take leadership if it advances your goals", character: "Draco Malfoy" },
+                    { text: "Work diligently on your part, even if unnoticed", character: "Neville Longbottom" },
+                    { text: "Focus on making sure everyone feels included", character: "Rubeus Hagrid" },
+                    { text: "Suggest unconventional approaches to problems", character: "Sirius Black" },
+                    { text: "Mediate conflicts and encourage cooperation", character: "Remus Lupin" },
+                    { text: "Bring energy and adapt to fill whatever role is needed", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "Your response to injustice is to:",
+                options: [
+                    { text: "Fight against it directly, regardless of personal risk", character: "Harry Potter" },
+                    { text: "Organize opposition and use knowledge as a weapon", character: "Hermione Granger" },
+                    { text: "Stand with friends against it, even if scared", character: "Ron Weasley" },
+                    { text: "Use clever resistance and inspire others", character: "Ginny Weasley" },
+                    { text: "Stay uninvolved unless it affects you personally", character: "Draco Malfoy" },
+                    { text: "Stand up against it even if your voice shakes", character: "Neville Longbottom" },
+                    { text: "Feel deeply upset and try to make things right", character: "Rubeus Hagrid" },
+                    { text: "React passionately and sometimes impulsively", character: "Sirius Black" },
+                    { text: "Work steadily for change within the system", character: "Remus Lupin" },
+                    { text: "Use unconventional methods to challenge the status quo", character: "Nymphadora Tonks" }
+                ]
+            },
+            {
+                question: "What would you see in the Mirror of Erised (which shows your deepest desire)?",
+                options: [
+                    { text: "Family and loved ones surrounding you", character: "Harry Potter" },
+                    { text: "Achieving extraordinary accomplishments", character: "Hermione Granger" },
+                    { text: "Standing out and being recognized for your own merits", character: "Ron Weasley" },
+                    { text: "Living freely on your own terms", character: "Ginny Weasley" },
+                    { text: "Success, power, and making your family proud", character: "Draco Malfoy" },
+                    { text: "Making your parents proud and proving your worth", character: "Neville Longbottom" },
+                    { text: "A world where magical creatures are protected and respected", character: "Rubeus Hagrid" },
+                    { text: "Reuniting with lost loved ones and regaining lost time", character: "Sirius Black" },
+                    { text: "Being fully accepted for who you are, including your flaws", character: "Remus Lupin" },
+                    { text: "A vibrant life full of adventure and connection", character: "Nymphadora Tonks" }
+                ]
+            }
+        ];
+
+
+
+
+
+            // Note: The user said they will provide the questions, so just keeping one as example
+            // You should replace these with your own questions
+        
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const progressElement = document.getElementById('progress');
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+            
+            // Update progress bar
+            progressElement.style.width = `${(currentQuestion / questions.length) * 100}%`;
+            
+            // Enable/disable prev button
+            prevButton.disabled = currentQuestion === 0;
+            
+            // Update next button text
+            nextButton.textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next';
+            
+            // Display current question
+            questionElement.textContent = questions[currentQuestion].question;
+            
+            // Clear options
+            optionsElement.innerHTML = '';
+            
+            // Add options
+            questions[currentQuestion].options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (answers[currentQuestion] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.textContent = option.text;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionElement);
+            });
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                // No option selected, show warning or force selection
+                alert('Please select an option before continuing.');
+                return;
+            }
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function calculateResults() {
+            const results = {
+                "Harry Potter": 0,
+                "Ron Weasley": 0,
+                "Hermione Granger": 0,
+                "Ginny Weasley": 0,
+                "Draco Malfoy": 0,
+                "Rubeus Hagrid": 0,
+                "Remus Lupin": 0,
+                "Sirius Black": 0,
+                "Neville Longbottom":0,
+                "Nymphadora Tonks": 0
+            };
+            
+            answers.forEach((answer, index) => {
+                const selectedCharacter = questions[index].options[answer].character;
+                results[selectedCharacter]++;
+            });
+            
+            // Convert to percentages
+            const total = questions.length;
+            const percentages = {};
+            
+            for (const character in results) {
+                percentages[character] = Math.round((results[character] / total) * 100);
+            }
+            
+            return percentages;
+        }
+
+        function showResults() {
+            const percentages = calculateResults();
+            const resultsPopup = document.getElementById('results-popup');
+            
+            // Find the top character
+            let topCharacter = "";
+            let topPercentage = 0;
+            
+            for (const character in percentages) {
+                if (percentages[character] > topPercentage) {
+                    topPercentage = percentages[character];
+                    topCharacter = character;
+                }
+            }
+            
+            // Find the character object
+            const characterData = characters.find(char => char.name === topCharacter);
+            
+            // Update the result content
+            document.getElementById('character-name').textContent = characterData.name;
+            document.getElementById('character-description').textContent = characterData.description;
+            
+            // Create proper image element instead of using background-image
+            const imageContainer = document.getElementById('character-image');
+            imageContainer.innerHTML = '';
+            
+            const characterImg = document.createElement('img');
+            characterImg.src = characterData.image;
+            characterImg.alt = characterData.name;
+            characterImg.style.width = '100%';
+            characterImg.style.height = '100%';
+            characterImg.style.objectFit = 'cover';
+            characterImg.style.objectPosition = 'center';
+            characterImg.style.borderRadius = '50%';
+            
+            imageContainer.appendChild(characterImg);
+            
+            // Create chart data
+            const chartData = [];
+            for (const character in percentages) {
+                if (percentages[character] > 0) { // Only show characters with non-zero percentages
+                    const characterObj = characters.find(char => char.name === character);
+                    chartData.push({
+                        name: character,
+                        value: percentages[character],
+                        color: characterObj.color
+                    });
+                }
+            }
+            
+            // Create pie chart
+            createPieChart(chartData);
+            
+            // Create legend
+            createLegend(chartData);
+            
+            // Show the popup
+            resultsPopup.style.display = 'block';
+        }
+
+        function createPieChart(data) {
+            // Clear previous chart
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            
+            // Set dimensions
+            const width = chartContainer.clientWidth || 500;
+            const height = chartContainer.clientHeight || 350;
+            const radius = Math.min(width, height) / 2 * 0.8;
+            
+            // Create SVG
+            const svg = d3.select('#chart-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, ${height / 2})`);
+            
+            // Create pie
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            // Define arc
+            const arc = d3.arc()
+                .innerRadius(radius * 0.4) // Donut hole size
+                .outerRadius(radius);
+            
+            // Enhanced arc for hover effect
+            const arcHover = d3.arc()
+                .innerRadius(radius * 0.4)
+                .outerRadius(radius * 1.08);
+                
+            // Add tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "d3-tooltip")
+                .style("position", "absolute")
+                .style("padding", "8px")
+                .style("background", "#333")
+                .style("color", "#fff")
+                .style("border-radius", "4px")
+                .style("font-size", "12px")
+                .style("pointer-events", "none")
+                .style("opacity", 0);
+                
+            // Add slices with animation
+            const slices = svg.selectAll('path')
+                .data(pie(data))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color)
+                .attr('stroke', '#1d1018') // Dark border for contrast
+                .attr('stroke-width', 2)
+                .style('transition', 'all 0.3s')
+                .on('mouseover', function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arcHover);
+                        
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    tooltip.html(`${d.data.name}: ${d.data.value}%`)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arc);
+                        
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attrTween('d', function(d) {
+                    const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+                    return function(t) {
+                        return arc(interpolate(t));
+                    };
+                });
+                
+            // Add percentage labels
+            svg.selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .attr('transform', d => {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0]}, ${centroid[1]})`;
+                })
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em') // Vertical alignment
+                .text(d => d.data.value >= 10 ? `${d.data.value}%` : '') // Only show if segment is large enough
+                .style('fill', '#ffffff')
+                .style('font-weight', 'bold')
+                .style('font-size', '14px')
+                .style('text-shadow', '1px 1px 2px rgba(0, 0, 0, 0.7)')
+                .style('pointer-events', 'none') // Prevent text from blocking hover
+                .style('opacity', 0)
+                .transition()
+                .delay((d, i) => 1000 + i * 100)
+                .duration(500)
+                .style('opacity', 1);
+                
+            // Add center label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .text('Your Match')
+                .style('fill', '#d4a44c')
+                .style('font-size', '18px')
+                .style('font-weight', 'bold')
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+        }
+
+        function createLegend(data) {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+            
+            data.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = item.color;
+                
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = `${item.name} (${item.value}%)`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(nameLabel);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+
+        function restartQuiz() {
+            answers = [];
+            currentQuestion = 0;
+            document.getElementById('results-popup').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the first question
+            loadQuestion();
+            
+            // Event listeners
+            document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+            document.getElementById('next-btn').addEventListener('click', nextQuestion);
+            document.getElementById('close-results').addEventListener('click', () => {
+                document.getElementById('results-popup').style.display = 'none';
+            });
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        

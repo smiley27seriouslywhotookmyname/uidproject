@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI Personality Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #f0f8ff, #e6e6fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .question-container {
+            margin-bottom: 35px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .question-container:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+        
+        .question-container:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #ffffff;
+        }
+        
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .label-left {
+            color: #ff6b9d;
+            text-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
+        }
+        
+        .label-right {
+            color: #4ecdc4;
+            text-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #ff6b9d 0%, #c44569 50%, #4ecdc4 100%);
+            outline: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            cursor: pointer;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            cursor: pointer;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 40px auto 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .results {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.8s ease;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .personality-type {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .type-code {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .type-name {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .type-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: left;
+        }
+        
+        .traits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .trait-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .trait-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .trait-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #4ecdc4;
+        }
+        
+        .trait-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(45deg, #4ecdc4, #ff6b9d);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .quiz-container, .results {
+                padding: 25px;
+            }
+            
+            .type-code {
+                font-size: 3rem;
+            }
+            
+            .type-name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">MBTI Personality Quiz</h1>
+            <p class="subtitle">Discover your unique personality type through 10 carefully crafted questions</p>
+        </div>
+        
+        <div id="quiz" class="quiz-container">
+            <div class="question-container">
+                <div class="question">1. How do you prefer to spend your free time?</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Socializing with friends</span>
+                        <span class="label-right">Enjoying quiet solitude</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q1">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">2. When learning something new, you prefer to:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Focus on concrete facts</span>
+                        <span class="label-right">Explore possibilities</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q2">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">3. When making important decisions, you rely more on:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Logic and analysis</span>
+                        <span class="label-right">Values and feelings</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q3">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">4. How do you approach deadlines and schedules?</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Plan ahead and stick to schedule</span>
+                        <span class="label-right">Keep options open and flexible</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q4">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">5. In group conversations, you tend to:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Speak up and share ideas</span>
+                        <span class="label-right">Listen and reflect first</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q5">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">6. You're more interested in:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">What is actually happening</span>
+                        <span class="label-right">What could be possible</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q6">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">7. When someone is upset, you first:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Try to solve the problem</span>
+                        <span class="label-right">Offer emotional support</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q7">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">8. Your ideal work environment is:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Structured with clear goals</span>
+                        <span class="label-right">Flexible with variety</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q8">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">9. You feel most energized when:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Interacting with many people</span>
+                        <span class="label-right">Having time alone to think</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q9">
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question">10. You prefer books/movies that are:</div>
+                <div class="slider-container">
+                    <div class="slider-labels">
+                        <span class="label-left">Realistic and practical</span>
+                        <span class="label-right">Imaginative and symbolic</span>
+                    </div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="q10">
+                </div>
+            </div>
+            
+            <button class="submit-btn" onclick="calculateResults()">Discover Your Personality Type</button>
+        </div>
+        
+        <div id="results" class="results">
+            <div class="personality-type">
+                <div class="type-code" id="typeCode"></div>
+                <div class="type-name" id="typeName"></div>
+            </div>
+            
+            <div class="traits-grid">
+                <div class="trait-card">
+                    <div class="trait-title">Energy Source</div>
+                    <div class="trait-value" id="energy"></div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-title">Information Processing</div>
+                    <div class="trait-value" id="information"></div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-title">Decision Making</div>
+                    <div class="trait-value" id="decision"></div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-title">Lifestyle</div>
+                    <div class="trait-value" id="lifestyle"></div>
+                </div>
+            </div>
+            
+            <div class="type-description" id="description"></div>
+            
+            <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const mbtiTypes = {
+            'INTJ': {
+                name: 'The Architect',
+                description: 'You are a strategic thinker with a plan for everything. INTJs are imaginative yet decisive, ambitious yet private, amazingly curious, but they do not squander their energy. They approach problems with quiet confidence and methodical precision. You excel at seeing the big picture and developing comprehensive systems. Your independent nature and high standards drive you to achieve excellence in everything you do. You prefer to work alone or in small groups, and you value competence above all else.'
+            },
+            'INTP': {
+                name: 'The Thinker',
+                description: 'You are a flexible thinker who loves to analyze and understand complex systems. INTPs are innovative inventors with an unquenchable thirst for knowledge. You approach problems with logic and creativity, often seeing patterns and connections that others miss. Your love of theoretical concepts and abstract thinking makes you excellent at developing new ideas and solutions. You value intellectual honesty and precision, and you prefer to keep your options open rather than rushing to closure.'
+            },
+            'ENTJ': {
+                name: 'The Commander',
+                description: 'You are a bold, imaginative, and strong-willed leader. ENTJs are natural-born leaders who combine charisma with strategic thinking. You excel at organizing people and resources to achieve long-term goals. Your confidence and decisiveness inspire others to follow your vision. You thrive in challenging environments and are always looking for ways to improve systems and processes. Your direct communication style and high expectations help drive teams toward excellence.'
+            },
+            'ENTP': {
+                name: 'The Debater',
+                description: 'You are a smart and curious thinker who cannot resist an intellectual challenge. ENTPs are innovative problem-solvers who love exploring new possibilities. Your quick wit and clever insights make you excellent at generating ideas and seeing multiple perspectives on any issue. You enjoy debating and discussing complex topics, often playing devil\'s advocate to explore all angles. Your enthusiasm and creativity inspire others, though you may struggle with routine tasks and follow-through.'
+            },
+            'INFJ': {
+                name: 'The Advocate',
+                description: 'You are a creative and insightful person, inspired and independent. INFJs combine deep intuition with strong values to help others reach their potential. You have a natural ability to see the best in people and situations, while also understanding complex emotional dynamics. Your idealism is backed by decisive action - you don\'t just dream about a better world, you work to create it. You prefer meaningful one-on-one conversations over small talk and value authenticity above all else.'
+            },
+            'INFP': {
+                name: 'The Mediator',
+                description: 'You are a poetic, kind, and altruistic person, eager to help others. INFPs are guided by their values and seek harmony in all aspects of life. You have a deep understanding of human nature and a genuine desire to help others grow and develop. Your creativity and imagination allow you to see unique solutions to problems. You prefer flexible environments where you can work at your own pace and pursue projects that align with your personal values and interests.'
+            },
+            'ENFJ': {
+                name: 'The Protagonist',
+                description: 'You are a charismatic and inspiring leader, able to mesmerize listeners. ENFJs are natural teachers and coaches who help others reach their full potential. Your emotional intelligence and empathy allow you to connect deeply with people from all walks of life. You excel at motivating and organizing groups toward common goals. Your optimism and enthusiasm are contagious, though you may sometimes neglect your own needs while caring for others.'
+            },
+            'ENFP': {
+                name: 'The Campaigner',
+                description: 'You are an enthusiastic, creative, and sociable free spirit. ENFPs are passionate about life and the endless possibilities it offers. Your enthusiasm and energy inspire others to pursue their dreams. You excel at seeing potential in people and situations, and you love helping others discover their talents. Your flexibility and adaptability make you excellent at handling change and uncertainty. You thrive in environments that offer variety, creativity, and the freedom to explore new ideas.'
+            },
+            'ISTJ': {
+                name: 'The Logistician',
+                description: 'You are practical and fact-minded, reliable and responsible. ISTJs are the backbone of many organizations, bringing order and structure to chaos. Your attention to detail and methodical approach ensure that projects are completed thoroughly and accurately. You value tradition, loyalty, and hard work. Your consistency and dependability make you someone others can always count on. You prefer clear expectations and established procedures, and you take pride in your ability to deliver high-quality results.'
+            },
+            'ISFJ': {
+                name: 'The Protector',
+                description: 'You are warm-hearted and dedicated, always ready to protect loved ones. ISFJs combine practical skills with deep caring for others. Your attention to detail and memory for important personal information make you exceptional at nurturing relationships. You work behind the scenes to ensure everyone\'s needs are met, often putting others\' well-being before your own. Your loyalty and commitment to your values make you a stabilizing force in any group or organization.'
+            },
+            'ESTJ': {
+                name: 'The Executive',
+                description: 'You are an excellent administrator, unsurpassed at managing things or people. ESTJs are natural organizers who bring order and efficiency to any situation. Your practical approach and strong work ethic help you achieve concrete results. You excel at creating and implementing systems that help organizations run smoothly. Your direct communication style and high standards inspire others to perform their best. You value tradition, loyalty, and proven methods for getting things done.'
+            },
+            'ESFJ': {
+                name: 'The Consul',
+                description: 'You are extraordinarily caring, social, and popular people, always eager to help. ESFJs are natural hosts who excel at bringing people together and creating harmony. Your emotional intelligence and empathy allow you to understand and respond to others\' needs effectively. You have a gift for remembering personal details and making everyone feel valued and included. Your organizational skills and attention to detail help you create memorable experiences for others.'
+            },
+            'ISTP': {
+                name: 'The Virtuoso',
+                description: 'You are bold and practical, a master of all kinds of tools. ISTPs are hands-on problem solvers who love understanding how things work. Your analytical mind and practical skills make you excellent at troubleshooting and fixing problems. You prefer to learn through direct experience and experimentation. Your calm demeanor and ability to stay focused under pressure make you valuable in crisis situations. You value freedom and flexibility, preferring to work independently at your own pace.'
+            },
+            'ISFP': {
+                name: 'The Adventurer',
+                description: 'You are a flexible and charming artist, always ready to explore new possibilities. ISFPs combine artistic sensitivity with a strong value system. Your appreciation for beauty and harmony influences everything you do. You have a natural talent for understanding people and creating environments where everyone feels comfortable being themselves. Your gentle nature and non-judgmental attitude make you an excellent listener and supporter. You prefer to work in harmony with others rather than in competition.'
+            },
+            'ESTP': {
+                name: 'The Entrepreneur',
+                description: 'You are smart, energetic, and perceptive people who truly enjoy living on the edge. ESTPs are dynamic problem-solvers who thrive in fast-paced environments. Your ability to think quickly and adapt to changing circumstances makes you excellent in crisis situations. You have a natural talent for reading people and situations, allowing you to navigate social dynamics with ease. Your enthusiasm and energy are contagious, and you excel at motivating others to take action.'
+            },
+            'ESFP': {
+                name: 'The Entertainer',
+                description: 'You are spontaneous, energetic, and enthusiastic people - life is never boring around you. ESFPs are natural performers who love bringing joy and excitement to others. Your warmth and genuine interest in people make you popular and well-liked. You have an excellent sense of timing and can read the mood of a room instantly. Your optimism and ability to live in the moment inspire others to embrace life more fully. You prefer collaborative environments where you can work closely with others.'
+            }
+        };
+
+        function calculateResults() {
+            // Get all slider values
+            const answers = [];
+            for (let i = 1; i <= 10; i++) {
+                answers.push(parseInt(document.getElementById(`q${i}`).value));
+            }
+            
+            // Calculate MBTI dimensions
+            // E/I: Questions 1, 5, 9 (lower values = E, higher values = I)
+            const ei = (answers[0] + answers[4] + answers[8]) / 3;
+            
+            // S/N: Questions 2, 6, 10 (lower values = S, higher values = N)  
+            const sn = (answers[1] + answers[5] + answers[9]) / 3;
+            
+            // T/F: Questions 3, 7 (lower values = T, higher values = F)
+            const tf = (answers[2] + answers[6]) / 2;
+            
+            // J/P: Questions 4, 8 (lower values = J, higher values = P)
+            const jp = (answers[3] + answers[7]) / 2;
+            
+            // Determine personality type
+            const type = 
+                (ei > 5.5 ? 'I' : 'E') +
+                (sn > 5.5 ? 'N' : 'S') +
+                (tf > 5.5 ? 'F' : 'T') +
+                (jp > 5.5 ? 'P' : 'J');
+            
+            // Display results
+            document.getElementById('typeCode').textContent = type;
+            document.getElementById('typeName').textContent = mbtiTypes[type].name;
+            document.getElementById('description').textContent = mbtiTypes[type].description;
+            
+            // Display trait breakdown
+            document.getElementById('energy').textContent = ei > 5.5 ? 'Introversion' : 'Extraversion';
+            document.getElementById('information').textContent = sn > 5.5 ? 'Intuition' : 'Sensing';
+            document.getElementById('decision').textContent = tf > 5.5 ? 'Feeling' : 'Thinking';
+            document.getElementById('lifestyle').textContent = jp > 5.5 ? 'Perceiving' : 'Judging';
+            
+            // Hide quiz and show results
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start' 
+            });
+        }
+        
+        function restartQuiz() {
+            // Reset all sliders to middle position
+            for (let i = 1; i <= 10; i++) {
+                document.getElementById(`q${i}`).value = 5;
+            }
+            
+            // Show quiz and hide results
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add staggered animation to question containers
+            const questionContainers = document.querySelectorAll('.question-container');
+            questionContainers.forEach((container, index) => {
+                container.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Add slider interaction feedback
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', function() {
+                    // Add a subtle vibration effect on mobile
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(10);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

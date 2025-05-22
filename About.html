@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Fictional Fate</title>
+  <!-- Using the same styles as home.html -->
+  <style>
+    :root {
+      --primary-color: #2d1b4e;
+      --secondary-color: #6a4c93;
+      --accent-color: #dc2626;
+      --background-color: #0a0a0a;
+      --container-color: #1a1a1a;
+      --border-color: #4c1d95;
+      --text-color: #f8fafc;
+      --header-footer-color: #1e1b4b;
+      --login-color: #7c3aed;
+      --card-bg: linear-gradient(145deg, #1e1b4b, #312e81);
+      --card-hover: linear-gradient(145deg, #312e81, #4c1d95);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--background-color) 0%, #1a1a2e 100%);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--container-color);
+      border: 3px solid var(--primary-color);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+      overflow: hidden;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    nav {
+      background-color: var(--primary-color);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 1.8em;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    
+    .logo img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      margin-left: 30px;
+      padding: 5px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      border-bottom: 2px solid white;
+    }
+
+    header {
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      border-top: 4px solid var(--accent-color);
+      border-bottom: 4px solid var(--accent-color);
+      position: relative;
+    }
+
+    .header-title {
+      font-size: 2.8em;
+      font-weight: 800;
+      margin-bottom: 15px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-subtitle {
+      font-size: 1.5em;
+      font-weight: 400;
+      color: #e2e8f0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Category Container Styles */
+    .category-container {
+      background: var(--card-bg);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(124, 58, 237, 0.4);
+      margin: 50px 20px;
+      border: 3px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+      animation: subtle-glow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtle-glow {
+      0% { transform: rotate(0deg) scale(1); }
+      100% { transform: rotate(360deg) scale(1.1); }
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 50px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .main-category-image {
+      width: 400px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 4px solid var(--accent-color);
+      box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .category-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .category-title {
+      font-size: 3.5rem;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      font-weight: bold;
+    }
+
+    .category-description {
+      font-size: 1.4rem;
+      line-height: 1.8;
+      color: #e2e8f0;
+      margin-bottom: 30px;
+    }
+
+    /* Sub-categories */
+    .sub-categories {
+      position: relative;
+      margin-top: 40px;
+      padding: 40px;
+      background: rgba(30, 27, 75, 0.3);
+      border-radius: 20px;
+      border: 2px dashed var(--accent-color);
+      backdrop-filter: blur(10px);
+    }
+
+    .sub-categories::before {
+      content: 'Our Process';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+      padding: 10px 30px;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 20px;
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .subcategory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 30px;
+      position: relative;
+    }
+
+    .sub-category-box {
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      transition: all 0.4s ease;
+      border: 2px solid var(--border-color);
+      position: relative;
+      transform-style: preserve-3d;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .sub-category-box:hover {
+      transform: translateY(-15px) rotateX(5deg);
+      box-shadow: 0 25px 60px rgba(124, 58, 237, 0.4);
+      border-color: var(--accent-color);
+    }
+
+    .sub-category-title {
+      font-size: 1.6rem;
+      color: white;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .sub-category-description {
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    /* Team Section */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .team-member {
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      padding: 30px;
+    }
+
+    .team-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent-color);
+      margin: 0 auto 20px;
+    }
+
+    /* Testimonials */
+    .testimonial-slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 30px;
+      padding: 20px 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .testimonial-card {
+      min-width: 300px;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 15px;
+      scroll-snap-align: start;
+    }
+
+    /* FAQ */
+    .faq-item {
+      margin-bottom: 20px;
+      background: rgba(30, 27, 75, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--primary-color);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 50px;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-section {
+      flex: 1;
+      min-width: 200px;
+      margin-bottom: 20px;
+      text-align: left;
+      padding: 0 15px;
+    }
+
+    .footer-section h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 30px;
+      height: 2px;
+      background-color: white;
+    }
+
+    .footer-section a {
+      color: #ddd;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-section a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .copyright {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Media Queries */
+    @media (max-width: 1200px) {
+      .category-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+      }
+      
+      .main-category-image {
+        width: 300px;
+        height: 300px;
+      }
+      
+      .category-title {
+        font-size: 2.8rem;
+      }
+      
+      .subcategory-grid, .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .header-title {
+        font-size: 2.2em;
+      }
+      
+      .header-subtitle {
+        font-size: 1.2em;
+      }
+      
+      .main-category-image {
+        width: 250px;
+        height: 250px;
+      }
+      
+      .category-title {
+        font-size: 2.2rem;
+      }
+      
+      .subcategory-grid, .team-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="header-title">About Fictional Fate</h1>
+    <p class="header-subtitle">Discover the magic behind our personality quizzes and character matching system</p>
+  </header>
+
+  <!-- Our Story Section -->
+  <div class="category-container">
+    <div class="category-header">
+      <img src="https://i.pinimg.com/736x/3e/28/c5/3e28c509f6a9d3637a7a7aa3f8a28a00.jpg" alt="Our Team" class="main-category-image">
+      <div class="category-info">
+        <h2 class="category-title">Our Story</h2>
+        <p class="category-description">
+          Fictional Fate was born from a simple idea: what if you could discover which fictional character truly matches your personality? 
+          Our team of psychology enthusiasts and pop culture nerds came together in 2020 to create scientifically-informed 
+          yet fun personality quizzes that connect you with characters from your favorite movies, books, and TV shows.
+        </p>
+        <p class="category-description">
+          We combine elements of the Myers-Briggs Type Indicator (MBTI), the Big Five personality traits, and our own proprietary 
+          algorithms to create accurate and entertaining character matches. Our mission is to help people better understand themselves 
+          through the lens of the characters they love.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="category-container">
+    <div class="sub-categories">
+      <div class="subcategory-grid">
+        <div class="sub-category-box">
+          <h3 class="sub-category-title">1. Take Our Quizzes</h3>
+          <p class="sub-category-description">
+            Our carefully crafted questions analyze your personality traits, values, and decision-making style through engaging scenarios and choices.
+          </p>
+        </div>
+        
+        <div class="sub-category-box">
+          <h3 class="sub-category-title">2. Advanced Matching</h3>
+          <p class="sub-category-description">
+            Our algorithm compares your responses with detailed character profiles from hundreds of fictional works, analyzing 50+ personality dimensions.
+          </p>
+        </div>
+        
+        <div class="sub-category-box">
+          <h3 class="sub-category-title">3. Discover Your Match</h3>
+          <p class="sub-category-description">
+            Receive your character match along with a detailed personality analysis and compatibility breakdown that explains why you're matched.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <div class="category-container">
+    <h2 class="category-title" style="text-align: center; margin-bottom: 40px;">What Our Users Say</h2>
+    <div class="testimonial-slider">
+      <div class="testimonial-card">
+        <p>"I was matched with Hermione Granger and the analysis was scarily accurate! It helped me understand my own strengths better."</p>
+        <p>- Sarah M.</p>
+      </div>
+      <div class="testimonial-card">
+        <p>"The Avengers quiz was so much fun! Getting matched with Tony Stark made my day and the explanation actually made sense."</p>
+        <p>- Michael T.</p>
+      </div>
+      <div class="testimonial-card">
+        <p>"As a literature teacher, I appreciate how well-researched the book character quizzes are. My students love them too!"</p>
+        <p>- Dr. Emily R.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="category-container">
+    <h2 class="category-title" style="text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2>
+    
+    <div class="faq-item">
+      <h3 class="sub-category-title">How accurate are your quizzes?</h3>
+      <p class="sub-category-description">
+        Our quizzes are designed by psychology professionals and use scientifically validated frameworks. While they're meant to be fun, 
+        we take the accuracy of our personality assessments seriously. We continuously refine our algorithms based on user feedback and 
+        psychological research.
+      </p>
+    </div>
+    
+    <div class="faq-item">
+      <h3 class="sub-category-title">How do you create character profiles?</h3>
+      <p class="sub-category-description">
+        Our team analyzes each character's behavior, motivations, and personality traits across their entire story arc. We consult original 
+        source material, psychological analyses, and sometimes even input from the creators when available. Each profile goes through multiple 
+        rounds of review before being added to our system.
+      </p>
+    </div>
+    
+    <div class="faq-item">
+      <h3 class="sub-category-title">Can I suggest new quizzes or characters?</h3>
+      <p class="sub-category-description">
+        Absolutely! We love hearing suggestions from our community. You can email us at suggestions@fictionafate.com with your ideas. 
+        Our most popular requests often get prioritized for future quizzes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <div class="category-container">
+    <h2 class="category-title" style="text-align: center; margin-bottom: 40px;">Get In Touch</h2>
+    <div class="sub-categories">
+      <div style="text-align: center; font-size: 1.2rem;">
+        <p>Have questions or feedback? We'd love to hear from you!</p>
+        <p style="margin: 20px 0;"><strong>Email:</strong> contact@fictionafate.com</p>
+        <p style="margin: 20px 0;">Follow us on social media:</p>
+        <div style="display: flex; justify-content: center; gap: 20px;">
+          <a href="#" style="color: var(--accent-color); font-size: 1.5rem;"></a>
+          <a href="#" style="color: var(--accent-color); font-size: 1.5rem;">📸</a>
+          <a href="#" style="color: var(--accent-color); font-size: 1.5rem;">🐦</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Fictional Fate</h3>
+        <p>Explore your personality and find your fictional character matches with our fun and engaging quizzes.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <a href="home.html">Home</a>
+        <a href="home.html#movie-quizzes">Movie Quizzes</a>
+        <a href="home.html#book-quizzes">Book Quizzes</a>
+        <a href="home.html#personality-tests">Personality Tests</a>
+      </div>
+      <div class="footer-section">
+        <h3>Information</h3>
+        <a href="about.html">About Us</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#terms">Terms of Service</a>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Fictional Fate. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Simple script for mobile menu toggle
+  document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('show');
+  });
+
+  // Smooth scrolling for navigation links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

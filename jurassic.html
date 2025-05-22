@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Which Jurassic Park Character Are You Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a1f0a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" opacity="0.05"><path d="M240,50c0,0,20,40,40,40s60-10,80,0s20,50,10,80s-30,60-20,100s30,80,0,100s-60,30-100,20s-60-40-100-30s-80,30-90-10s0-60,10-100s40-60,40-100s-10-80,30-100s60-10,100,0" fill="%23648F00"/></svg>');
+            background-repeat: repeat;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(20, 40, 20, 0.9);
+            border: 2px solid #648F00;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(100, 143, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #E5B80B;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #1a2e1a;
+            border: 1px solid #648F00;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #2a4a2a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(100, 143, 0, 0.3);
+        }
+        
+        .option.selected {
+            background-color: #36482d;
+            border-color: #E5B80B;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #1a2e1a;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #E5B80B;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #648F00;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #7BAD00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #445c24;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #results-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-content {
+            position: relative;
+            background-color: #12211e;
+            border: 3px solid #E5B80B;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(229, 184, 11, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .character-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .character-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid #E5B80B;
+            margin-bottom: 20px;
+            background-color: #1a2e1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #aaaaaa;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(229, 184, 11, 0.3);
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            color: #E5B80B;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .character-description {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .close-results {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: transparent;
+            color: #E5B80B;
+            border: 1px solid #E5B80B;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-results:hover {
+            background-color: #E5B80B;
+            color: #12211e;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 350px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .restart-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Which Jurassic Park Character Are You?</h1>
+        
+        <div id="quiz-container" class="quiz-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+            
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            
+            <div class="navigation">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="results-popup">
+        <div class="results-content">
+            <button class="close-results" id="close-results">×</button>
+            
+            <div class="character-result">
+                <div class="character-image" id="character-image">
+                    [Character Image]
+                </div>
+                <h2 class="character-name" id="character-name"></h2>
+                <p class="character-description" id="character-description"></p>
+            </div>
+            
+            <h3 style="text-align: center; color: #E5B80B;">Your Jurassic Park Match</h3>
+            <div class="chart-container" id="chart-container"></div>
+            <div class="legend" id="legend"></div>
+            
+            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+<script>
+const jurassicCharacters = [
+    {
+        name: "Dr. Alan Grant",
+        description: "You're a dedicated professional with a passion for your field. Like Dr. Grant, you're practical and resourceful, preferring facts and evidence over speculation. While you might not be the most comfortable in social situations, you step up when needed and can be fiercely protective. Your quiet confidence and hands-on knowledge make you someone others look to in a crisis.",
+        image: "https://upload.wikimedia.org/wikipedia/en/1/18/Alan_Grant_%28Sam_Neill%29.jpg",
+        color: "#3D5A80" // Deep Blue
+    },
+    {
+        name: "Dr. Ellie Sattler",
+        description: "You're intelligent, compassionate, and not afraid to get your hands dirty. Like Dr. Sattler, you combine scientific knowledge with empathy and intuition. You're quick-thinking in emergencies, maintaining your composure while still connecting with others emotionally. Your balanced approach to problems and ability to care for others while taking decisive action make you invaluable in any team.",
+        image: "https://upload.wikimedia.org/wikipedia/en/c/c4/Ellie_Sattler_%28Laura_Dern%29.jpg",
+        color: "#588157" // Green
+    },
+    {
+        name: "Dr. Ian Malcolm",
+        description: "You're the intellectual with a flair for the dramatic. Like Dr. Malcolm, you see patterns others miss and aren't afraid to point out flaws in others' thinking. Your philosophical outlook and wry humor help you cope with chaos, and you're willing to challenge authority when ethical lines are crossed. Though sometimes perceived as arrogant, your insights often prove prophetic.",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwUfbCkUFDzfow_Qxy0pryHltxGQICFoFUlA&s",
+        color: "#282828" // Dark Gray/Black (for his signature black clothing)
+    },
+    {
+        name: "Tim Murphy",
+        description: "You're curious, enthusiastic, and surprisingly resilient. Like Tim, you have a deep fascination with scientific topics and an encyclopedic knowledge of your interests. Despite your youth (at heart or in years), you show remarkable courage when facing challenges. Your ability to remain optimistic and apply your knowledge in practical situations helps turn the tide in difficult circumstances.",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQroQFjTXIt67ZnyxL9USdqhaS-1MmUtk436g&s",
+        color: "#E63946" // Bright Red
+    },
+    {
+        name: "Lex Murphy",
+        description: "You're tech-savvy, determined, and tougher than you appear. Like Lex, you may initially seem overwhelmed by challenges, but you quickly adapt and find ways to contribute your unique skills. Your logical thinking under pressure and ability to master complex systems (whether computers or relationships) make you an essential ally. When the chips are down, you find unexpected courage.",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5pkm-xCRAvrN3Bus6evzNo-umU3ndoHW0eg&s",
+        color: "#90BE6D" // Light Green
+    },
+    {
+        name: "Donald Gennaro",
+        description: "You're practical, concerned with liability, and focused on the bottom line. Like Gennaro, you want to see return on investment and aren't initially impressed by wonders that don't translate to tangible results. While you may appear self-interested at first, you have potential for growth and recognizing value beyond monetary measures. You appreciate security and clear structures in life.",
+        image: "/api/placeholder/400/320",
+        color: "#B08968" // Brown
+    },
+    {
+        name: "John Hammond",
+        description: "You're a visionary with boundless enthusiasm and optimism. Like Hammond, you dream big and spare no expense bringing your ideas to life. You have childlike wonder coupled with entrepreneurial drive, though you may occasionally overlook practical concerns in pursuit of your vision. Despite setbacks, your fundamental belief that you can create something meaningful drives you forward.",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcmKxlFg52oMMPiaDCJv6FFsGmXQBpmVjnww&s",
+        color: "#F9C74F" // Amber/Gold
+    },
+    {
+        name: "Robert Muldoon",
+        description: "You're experienced, practical, and have a healthy respect for danger. Like Muldoon, you understand the risks others overlook and prioritize safety and preparation. Your no-nonsense approach and attention to detail make you an excellent planner and protector. You trust your instincts and professional expertise over corporate interests, and you're not afraid to speak uncomfortable truths.",
+        image: "/api/placeholder/400/320",
+        color: "#6B705C" // Olive/Khaki
+    },
+    {
+        name: "Dr. Henry Wu",
+        description: "You're brilliant, innovative, and focused on pushing boundaries. Like Dr. Wu, you see the potential in combining cutting-edge ideas and aren't limited by traditional thinking. While your work may be groundbreaking, you sometimes overlook ethical implications in your pursuit of achievement. Your confidence in your abilities and vision for what could be drives your relentless advancement.",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJ-xaOWTbFQpIiSj0N0BE3sxAEjD6EjiZYCQ&s",
+        color: "#7209B7" // Purple
+    }
+];
+const jurassicQuestions = [
+    {
+        question: "A dinosaur has escaped its enclosure. What's your first reaction?",
+        options: [
+            { text: "Analyze the situation and develop a practical plan to handle it", character: "Dr. Alan Grant" },
+            { text: "Ensure everyone's safety while staying calm to not provoke the animal", character: "Dr. Ellie Sattler" },
+            { text: "Point out that this was inevitable given the fundamental flaws in the park's design", character: "Dr. Ian Malcolm" },
+            { text: "Share facts about the dinosaur species that might help understand its behavior", character: "Tim Murphy" },
+            { text: "Look for technological solutions like security systems to contain the threat", character: "Lex Murphy" },
+            { text: "Consider the legal and financial implications of this incident", character: "Donald Gennaro" },
+            { text: "Insist that the situation can be controlled and the park can still succeed", character: "John Hammond" },
+            { text: "Take immediate action based on your knowledge of predator behavior", character: "Robert Muldoon" },
+            { text: "See it as an opportunity to study the dinosaur's adaptive behaviors", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "What's your approach to new technology?",
+        options: [
+            { text: "Skeptical until proven practical and reliable", character: "Dr. Alan Grant" },
+            { text: "Interested in how it benefits both people and the environment", character: "Dr. Ellie Sattler" },
+            { text: "Concerned about unintended consequences and ethical implications", character: "Dr. Ian Malcolm" },
+            { text: "Excited to learn everything about how it works", character: "Tim Murphy" },
+            { text: "Quick to master it and find innovative applications", character: "Lex Murphy" },
+            { text: "Focused on its profit potential and marketability", character: "Donald Gennaro" },
+            { text: "Enthusiastic about its spectacular possibilities", character: "John Hammond" },
+            { text: "Interested in its safety features and potential hazards", character: "Robert Muldoon" },
+            { text: "Eager to push its limits and develop the next version", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "The power goes out in the park. You decide to:",
+        options: [
+            { text: "Use practical knowledge to navigate and protect others", character: "Dr. Alan Grant" },
+            { text: "Focus on immediate medical or survival needs", character: "Dr. Ellie Sattler" },
+            { text: "Calculate the cascading system failures that will follow", character: "Dr. Ian Malcolm" },
+            { text: "Remember maps and layouts from your reading to find safe routes", character: "Tim Murphy" },
+            { text: "Try to restore computer systems or find alternative power", character: "Lex Murphy" },
+            { text: "Find the quickest way to secure transportation off the island", character: "Donald Gennaro" },
+            { text: "Maintain optimism that the backup systems will engage", character: "John Hammond" },
+            { text: "Immediately secure weapons and establish defensive positions", character: "Robert Muldoon" },
+            { text: "Focus on protecting your laboratory and research", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "What's your greatest strength in a crisis?",
+        options: [
+            { text: "Practical experience and hands-on problem solving", character: "Dr. Alan Grant" },
+            { text: "Balancing emotional support with necessary action", character: "Dr. Ellie Sattler" },
+            { text: "Analytical thinking that anticipates further complications", character: "Dr. Ian Malcolm" },
+            { text: "Unexpected knowledge that provides crucial insights", character: "Tim Murphy" },
+            { text: "Technical skills that others lack", character: "Lex Murphy" },
+            { text: "Understanding of systems and organizational hierarchy", character: "Donald Gennaro" },
+            { text: "Inspiring others with vision and resources", character: "John Hammond" },
+            { text: "Tactical awareness and preparedness", character: "Robert Muldoon" },
+            { text: "Finding innovative solutions using available materials", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "How do you view rules and authority?",
+        options: [
+            { text: "Respect them but rely on your own expertise when necessary", character: "Dr. Alan Grant" },
+            { text: "Follow them while questioning policies that seem harmful", character: "Dr. Ellie Sattler" },
+            { text: "Challenge them, especially when they ignore natural principles", character: "Dr. Ian Malcolm" },
+            { text: "Generally follow them but curious about the reasons behind them", character: "Tim Murphy" },
+            { text: "Work within their framework but find creative workarounds", character: "Lex Murphy" },
+            { text: "Uphold them, especially when they protect financial interests", character: "Donald Gennaro" },
+            { text: "See them as guidelines that sometimes limit necessary innovation", character: "John Hammond" },
+            { text: "Enforce them rigorously, particularly safety protocols", character: "Robert Muldoon" },
+            { text: "View them as sometimes limiting scientific progress", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "What would you most like to study or observe about dinosaurs?",
+        options: [
+            { text: "Their behaviors and social structures in their natural habitat", character: "Dr. Alan Grant" },
+            { text: "Their plant diet and ecological impact on their environment", character: "Dr. Ellie Sattler" },
+            { text: "The chaos patterns in their adaptive evolution", character: "Dr. Ian Malcolm" },
+            { text: "Everything! But especially facts about each species' unique features", character: "Tim Murphy" },
+            { text: "Their intelligence and problem-solving abilities", character: "Lex Murphy" },
+            { text: "Their commercial appeal and which ones attract visitors", character: "Donald Gennaro" },
+            { text: "Their grand, awe-inspiring presence and impact on audiences", character: "John Hammond" },
+            { text: "Their hunting techniques and territorial behaviors", character: "Robert Muldoon" },
+            { text: "Their genetic makeup and potential for enhancement", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "You discover a dinosaur nest in the wild. You would:",
+        options: [
+            { text: "Observe from a distance and document natural hatching behaviors", character: "Dr. Alan Grant" },
+            { text: "Examine the nest construction and surrounding plant life", character: "Dr. Ellie Sattler" },
+            { text: "Note how life has found a way despite genetic controls", character: "Dr. Ian Malcolm" },
+            { text: "Identify the species from egg shape and nest construction", character: "Tim Murphy" },
+            { text: "Set up remote monitoring to track development without interference", character: "Lex Murphy" },
+            { text: "Consider how this affects the park's inventory and containment", character: "Donald Gennaro" },
+            { text: "See it as proof the park is working as a sustainable attraction", character: "John Hammond" },
+            { text: "Assess the security threat of increased dinosaur populations", character: "Robert Muldoon" },
+            { text: "Collect samples to study how reproduction occurred despite controls", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "What's your idea of taking responsibility?",
+        options: [
+            { text: "Stepping up to protect others regardless of personal risk", character: "Dr. Alan Grant" },
+            { text: "Addressing both immediate needs and underlying issues", character: "Dr. Ellie Sattler" },
+            { text: "Speaking uncomfortable truths about systemic problems", character: "Dr. Ian Malcolm" },
+            { text: "Contributing knowledge and abilities beyond your years", character: "Tim Murphy" },
+            { text: "Using your unique skills when they become critical", character: "Lex Murphy" },
+            { text: "Ensuring proper insurance and legal protections are in place", character: "Donald Gennaro" },
+            { text: "Acknowledging mistakes while maintaining your core vision", character: "John Hammond" },
+            { text: "Preparing thoroughly for foreseeable dangers", character: "Robert Muldoon" },
+            { text: "Continuing to perfect your work despite complications", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "How do you typically dress for work or important occasions?",
+        options: [
+            { text: "Practical, field-appropriate attire that can get dirty", character: "Dr. Alan Grant" },
+            { text: "Functional but stylish clothes suitable for outdoor work", character: "Dr. Ellie Sattler" },
+            { text: "All black, somewhat flamboyant but with intellectual appeal", character: "Dr. Ian Malcolm" },
+            { text: "Casual clothes featuring your current interests or hobbies", character: "Tim Murphy" },
+            { text: "Practical but current styles in bright colors", character: "Lex Murphy" },
+            { text: "Business formal - suits that convey authority and success", character: "Donald Gennaro" },
+            { text: "White linen and accessories that convey distinguished success", character: "John Hammond" },
+            { text: "Utility-focused clothing with plenty of pockets and durability", character: "Robert Muldoon" },
+            { text: "Professional lab wear with meticulous attention to detail", character: "Dr. Henry Wu" }
+        ]
+    },
+    {
+        question: "What's your biggest flaw in high-pressure situations?",
+        options: [
+            { text: "Can be gruff or impatient with those who panic", character: "Dr. Alan Grant" },
+            { text: "Sometimes taking on others' emotional burdens too much", character: "Dr. Ellie Sattler" },
+            { text: "Intellectual analysis when immediate action is needed", character: "Dr. Ian Malcolm" },
+            { text: "Occasional naive enthusiasm despite danger", character: "Tim Murphy" },
+            { text: "Initial fear before finding your courage", character: "Lex Murphy" },
+            { text: "Prioritizing self-preservation over group welfare", character: "Donald Gennaro" },
+            { text: "Unwillingness to abandon your vision despite clear problems", character: "John Hammond" },
+            { text: "Overconfidence in your ability to handle dangerous predators", character: "Robert Muldoon" },
+            { text: "Focusing on scientific possibilities rather than ethical limits", character: "Dr. Henry Wu" }
+        ]
+    }
+];
+let currentQuestion = 0;
+let answers = [];
+
+function loadQuestion() {
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const progressElement = document.getElementById('progress');
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+    
+    // Update progress bar
+    progressElement.style.width = `${(currentQuestion / jurassicQuestions.length) * 100}%`;
+    
+    // Enable/disable prev button
+    prevButton.disabled = currentQuestion === 0;
+    
+    // Update next button text
+    nextButton.textContent = currentQuestion === jurassicQuestions.length - 1 ? 'See Results' : 'Next';
+    
+    // Display current question
+    questionElement.textContent = jurassicQuestions[currentQuestion].question;
+    
+    // Clear options
+    optionsElement.innerHTML = '';
+    
+    // Add options
+    jurassicQuestions[currentQuestion].options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'option';
+        if (answers[currentQuestion] === index) {
+            optionElement.classList.add('selected');
+        }
+        optionElement.textContent = option.text;
+        optionElement.addEventListener('click', () => selectOption(index));
+        optionsElement.appendChild(optionElement);
+    });
+}
+
+function selectOption(index) {
+    answers[currentQuestion] = index;
+    document.querySelectorAll('.option').forEach((option, i) => {
+        if (i === index) {
+            option.classList.add('selected');
+        } else {
+            option.classList.remove('selected');
+        }
+    });
+}
+
+function nextQuestion() {
+    if (answers[currentQuestion] === undefined) {
+        // No option selected, show warning or force selection
+        alert('Please select an option before continuing.');
+        return;
+    }
+    
+    if (currentQuestion < jurassicQuestions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+    }
+}
+
+function calculateResults() {
+    const results = {
+        "Dr. Alan Grant": 0,
+        "Dr. Ellie Sattler": 0,
+        "Dr. Ian Malcolm": 0,
+        "Tim Murphy": 0,
+        "Lex Murphy": 0,
+        "Donald Gennaro": 0,
+        "John Hammond": 0,
+        "Robert Muldoon": 0,
+        "Dr. Henry Wu": 0
+    };
+    
+    answers.forEach((answer, index) => {
+        const selectedCharacter = jurassicQuestions[index].options[answer].character;
+        results[selectedCharacter]++;
+    });
+    
+    // Convert to percentages
+    const total = jurassicQuestions.length;
+    const percentages = {};
+    
+    for (const character in results) {
+        percentages[character] = Math.round((results[character] / total) * 100);
+    }
+    
+    return percentages;
+}
+
+function showResults() {
+    const percentages = calculateResults();
+    const resultsPopup = document.getElementById('results-popup');
+    
+    // Find the top character
+    let topCharacter = "";
+    let topPercentage = 0;
+    
+    for (const character in percentages) {
+        if (percentages[character] > topPercentage) {
+            topPercentage = percentages[character];
+            topCharacter = character;
+        }
+    }
+    
+    // Find the character object
+    const characterData = jurassicCharacters.find(char => char.name === topCharacter);
+    
+    // Update the result content
+    document.getElementById('character-name').textContent = characterData.name;
+    document.getElementById('character-description').textContent = characterData.description;
+    
+    // Create proper image element instead of using background-image
+    const imageContainer = document.getElementById('character-image');
+    imageContainer.innerHTML = '';
+    
+    const characterImg = document.createElement('img');
+    characterImg.src = characterData.image;
+    characterImg.alt = characterData.name;
+    characterImg.style.width = '100%';
+    characterImg.style.height = '100%';
+    characterImg.style.objectFit = 'cover';
+    characterImg.style.objectPosition = 'center';
+    characterImg.style.borderRadius = '50%';
+    
+    imageContainer.appendChild(characterImg);
+    
+    // Create chart data
+    const chartData = [];
+    for (const character in percentages) {
+        if (percentages[character] > 0) { // Only show characters with non-zero percentages
+            const characterObj = jurassicCharacters.find(char => char.name === character);
+            chartData.push({
+                name: character,
+                value: percentages[character],
+                color: characterObj.color
+            });
+        }
+    }
+    
+    // Create pie chart
+    createPieChart(chartData);
+    
+    // Create legend
+createLegend(chartData);
+    
+    // Show the popup
+    resultsPopup.style.display = 'block';
+}
+
+function createPieChart(data) {
+    // Clear previous chart
+    const chartContainer = document.getElementById('chart-container');
+    chartContainer.innerHTML = '';
+    
+    // Set dimensions
+    const width = chartContainer.clientWidth || 500;
+    const height = chartContainer.clientHeight || 350;
+    const radius = Math.min(width, height) / 2 * 0.8;
+    
+    // Create SVG
+    const svg = d3.select('#chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${width / 2}, ${height / 2})`);
+    
+    // Create pie
+    const pie = d3.pie()
+        .value(d => d.value)
+        .sort(null);
+    
+    // Define arc
+    const arc = d3.arc()
+        .innerRadius(radius * 0.4) // Donut hole size
+        .outerRadius(radius);
+    
+    // Enhanced arc for hover effect
+    const arcHover = d3.arc()
+        .innerRadius(radius * 0.4)
+        .outerRadius(radius * 1.08);
+        
+    // Add tooltip
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "d3-tooltip")
+        .style("position", "absolute")
+        .style("padding", "8px")
+        .style("background", "#333")
+        .style("color", "#fff")
+        .style("border-radius", "4px")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
+        
+    // Add slices with animation
+    const slices = svg.selectAll('path')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', d => d.data.color)
+        .attr('stroke', '#0d1f2d') // Dark border for contrast
+        .attr('stroke-width', 2)
+        .style('transition', 'all 0.3s')
+        .on('mouseover', function(event, d) {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('d', arcHover);
+                
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            tooltip.html(`${d.data.name}: ${d.data.value}%`)
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on('mouseout', function() {
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr('d', arc);
+                
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        })
+        .transition()
+        .duration(1000)
+        .attrTween('d', function(d) {
+            const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+            return function(t) {
+                return arc(interpolate(t));
+            };
+        });
+        
+    // Add percentage labels
+    svg.selectAll('text')
+        .data(pie(data))
+        .enter()
+        .append('text')
+        .attr('transform', d => {
+            const centroid = arc.centroid(d);
+            return `translate(${centroid[0]}, ${centroid[1]})`;
+        })
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em') // Vertical alignment
+        .text(d => d.data.value >= 10 ? `${d.data.value}%` : '') // Only show if segment is large enough
+        .style('fill', '#ffffff')
+        .style('font-weight', 'bold')
+        .style('font-size', '14px')
+        .style('text-shadow', '1px 1px 2px rgba(0, 0, 0, 0.7)')
+        .style('pointer-events', 'none') // Prevent text from blocking hover
+        .style('opacity', 0)
+        .transition()
+        .delay((d, i) => 1000 + i * 100)
+        .duration(500)
+        .style('opacity', 1);
+        
+    // Add center label
+    svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .text('Your Match')
+        .style('fill', '#d9a149')
+        .style('font-size', '18px')
+        .style('font-weight', 'bold')
+        .style('opacity', 0)
+        .transition()
+        .duration(500)
+        .style('opacity', 1);
+}
+
+function createLegend(data) {
+    const legendContainer = document.getElementById('legend');
+    legendContainer.innerHTML = '';
+    
+    data.forEach(item => {
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        
+        const colorBox = document.createElement('div');
+        colorBox.className = 'color-box';
+        colorBox.style.backgroundColor = item.color;
+        
+        const nameLabel = document.createElement('span');
+        nameLabel.textContent = `${item.name} (${item.value}%)`;
+        
+        legendItem.appendChild(colorBox);
+        legendItem.appendChild(nameLabel);
+        legendContainer.appendChild(legendItem);
+    });
+}
+
+function restartQuiz() {
+    answers = [];
+    currentQuestion = 0;
+    document.getElementById('results-popup').style.display = 'none';
+    loadQuestion();
+}
+
+// Initialize the quiz
+document.addEventListener('DOMContentLoaded', () => {
+    // Load the first question
+    loadQuestion();
+    
+    // Event listeners
+    document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+    document.getElementById('next-btn').addEventListener('click', nextQuestion);
+    document.getElementById('close-results').addEventListener('click', () => {
+        document.getElementById('results-popup').style.display = 'none';
+    });
+    document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+});
+</script>
+</body>
+</html>

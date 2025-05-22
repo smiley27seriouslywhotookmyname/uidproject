@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Which Avenger Are You Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" opacity="0.05"><path d="M250,50l39,120h126l-102,74l39,120l-102-74l-102,74l39-120l-102-74h126z" fill="%23e23636"/></svg>');
+            background-repeat: repeat;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(20, 20, 20, 0.9);
+            border: 2px solid #e23636;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(226, 54, 54, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #e23636;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .quiz-container {
+            margin-top: 20px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: #282828;
+            border: 1px solid #e23636;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #3a3a3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(226, 54, 54, 0.3);
+        }
+        
+        .option.selected {
+            background-color: #4a1515;
+            border-color: #e23636;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #282828;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #e23636;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: #e23636;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #f04c4c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:disabled {
+            background-color: #6c2020;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #results-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-content {
+            position: relative;
+            background-color: #121212;
+            border: 3px solid #e23636;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(226, 54, 54, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .character-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .character-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid #e23636;
+            margin-bottom: 20px;
+            background-color: #282828;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #aaaaaa;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(226, 54, 54, 0.3);
+        }
+        
+        .character-name {
+            font-size: 2rem;
+            color: #e23636;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .character-description {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .close-results {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: transparent;
+            color: #e23636;
+            border: 1px solid #e23636;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-results:hover {
+            background-color: #e23636;
+            color: #121212;
+        }
+        
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 350px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .restart-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Which Avenger Are You?</h1>
+        
+        <div id="quiz-container" class="quiz-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+            
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            
+            <div class="navigation">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="results-popup">
+        <div class="results-content">
+            <button class="close-results" id="close-results">×</button>
+            
+            <div class="character-result">
+                <div class="character-image" id="character-image">
+                    [Character Image]
+                </div>
+                <h2 class="character-name" id="character-name"></h2>
+                <p class="character-description" id="character-description"></p>
+            </div>
+            
+            <h3 style="text-align: center; color: #e23636;">Your Character Breakdown</h3>
+            <div class="chart-container" id="chart-container"></div>
+            <div class="legend" id="legend"></div>
+            
+            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            {
+                name: "Iron Man",
+                description: "You're brilliant, innovative, and not afraid to speak your mind. Like Tony Stark, you combine intelligence with charisma, and while you may sometimes come across as arrogant, you're willing to sacrifice everything for those you care about. You believe in solving problems with ingenuity and technology.",
+                image: "https://i.pinimg.com/736x/ef/0c/29/ef0c297cf840cd72ec178b826ea9dbba.jpg",
+                color: "#f39c12"
+            },
+            {
+                name: "Captain America",
+                description: "You're principled, loyal, and always stand up for what's right. Like Steve Rogers, you have unshakable moral values and natural leadership abilities. You're the person others turn to in a crisis, and you never back down from defending the underdog. Your strength comes from your conviction.",
+                image: "https://akns-images.eonline.com/eol_images/Entire_Site/2013924/rs_1024x759-131024111419-1024.captain-america-2.jpg?fit=around%7C1024:759&output-quality=90&crop=1024:759;center,top",
+                color: "#3498db"
+            },
+            {
+                name: "Black Widow",
+                description: "You're resourceful, adaptable, and strategically minded. Like Natasha Romanoff, you have a complex past that has shaped you into someone who sees all angles of a situation. You're loyal to those who earn your trust, and you'll use whatever skills necessary to protect what matters.",
+                image: "https://static1.srcdn.com/wordpress/wp-content/uploads/2024/12/natasha-romanoff-with-short-hair-in-the-avengers.jpg",
+                color: "#e74c3c"
+            },
+            {
+                name: "Thor",
+                description: "You're powerful, passionate, and have a strong sense of duty. Like the God of Thunder, you're loyal to your heritage but willing to learn and grow. You may sometimes be impulsive, but your heart is always in the right place. You believe in protecting others and bringing joy to those around you.",
+                image: "https://practicaltyping.com/wp-content/uploads/2023/01/Thor.jpg",
+                color: "#9b59b6"
+            },
+            {
+                name: "Hulk",
+                description: "You contain multitudes - intelligence alongside raw emotion and power. Like Bruce Banner and his alter ego, you're more complex than people initially assume. You're thoughtful and brilliant, but when pushed, you show incredible strength. You're working on balancing the different sides of yourself.",
+                image: "https://i.pinimg.com/736x/2a/3f/f1/2a3ff10f3e4b50d26418b2b1ab90c673.jpg",
+                color: "#2ecc71"
+            }
+        ];
+const questions = [
+    {
+        question: "How would you handle a conflict?",
+        options: [
+            { text: "Make a sarcastic comment and solve it with technology", character: "Iron Man" },
+            { text: "Stand up for what's right, no matter the cost", character: "Captain America" },
+            { text: "Assess all angles and find the strategic solution", character: "Black Widow" },
+            { text: "Confront it head-on with confidence and power", character: "Thor" },
+            { text: "Get angry and smash the problem away", character: "Hulk" },
+            { text: "Observe from a distance before making a precise move", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What's your greatest strength?",
+        options: [
+            { text: "My intelligence and quick thinking", character: "Iron Man" },
+            { text: "My strong moral compass and leadership", character: "Captain America" },
+            { text: "My adaptability and ability to read people", character: "Black Widow" },
+            { text: "My courage and physical strength", character: "Thor" },
+            { text: "My raw power and determination", character: "Hulk" },
+            { text: "My focus and attention to detail", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What would you do on a day off?",
+        options: [
+            { text: "Work on innovative projects in my lab", character: "Iron Man" },
+            { text: "Volunteer or help people in need", character: "Captain America" },
+            { text: "Train or learn a new skill", character: "Black Widow" },
+            { text: "Feast, drink, and tell stories with friends", character: "Thor" },
+            { text: "Spend time alone in a peaceful environment", character: "Hulk" },
+            { text: "Spend quality time with family or close friends", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What's your biggest weakness?",
+        options: [
+            { text: "My ego and difficulty trusting others", character: "Iron Man" },
+            { text: "Being too idealistic or stuck in my ways", character: "Captain America" },
+            { text: "Struggling to reveal my true self to others", character: "Black Widow" },
+            { text: "Being impulsive or overconfident", character: "Thor" },
+            { text: "My temper and emotional reactions", character: "Hulk" },
+            { text: "Feeling undervalued or overlooked", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "How do you approach teamwork?",
+        options: [
+            { text: "I prefer to work independently but will collaborate when necessary", character: "Iron Man" },
+            { text: "I naturally take charge and inspire others", character: "Captain America" },
+            { text: "I adapt to whatever role the team needs", character: "Black Widow" },
+            { text: "I bring enthusiasm and power to boost team morale", character: "Thor" },
+            { text: "I contribute when needed but prefer to work alone", character: "Hulk" },
+            { text: "I provide support from the background", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What do you value most?",
+        options: [
+            { text: "Innovation and progress", character: "Iron Man" },
+            { text: "Honor and doing what's right", character: "Captain America" },
+            { text: "Loyalty and redemption", character: "Black Widow" },
+            { text: "Legacy and tradition", character: "Thor" },
+            { text: "Peace and being understood", character: "Hulk" },
+            { text: "Family and stability", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "How do you handle stress?",
+        options: [
+            { text: "Dive into work and create something new", character: "Iron Man" },
+            { text: "Stay focused on the mission and push through", character: "Captain America" },
+            { text: "Stay calm and analyze the situation logically", character: "Black Widow" },
+            { text: "Channel emotions into action and power", character: "Thor" },
+            { text: "I might lose my temper but eventually find balance", character: "Hulk" },
+            { text: "Take a step back and gain perspective", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What's your role in saving the world?",
+        options: [
+            { text: "Provide the tech, funding, and occasional heroic sacrifice", character: "Iron Man" },
+            { text: "Inspire others and lead by example", character: "Captain America" },
+            { text: "Work in the shadows and do what others can't", character: "Black Widow" },
+            { text: "Bring divine power and cosmic perspective", character: "Thor" },
+            { text: "Unleash unstoppable force when needed most", character: "Hulk" },
+            { text: "Keep the team grounded and offer precise support", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "How do you feel about rules and authority?",
+        options: [
+            { text: "Rules are made to be bent, especially by geniuses", character: "Iron Man" },
+            { text: "I respect authority but will challenge it when morally necessary", character: "Captain America" },
+            { text: "Rules can be useful cover, but mission comes first", character: "Black Widow" },
+            { text: "I follow worthy leadership but answer to higher principles", character: "Thor" },
+            { text: "Rules are restraints I need to break free from", character: "Hulk" },
+            { text: "I follow orders professionally but maintain personal independence", character: "Hawkeye" }
+        ]
+    },
+    {
+        question: "What's your approach to making tough decisions?",
+        options: [
+            { text: "Calculate risks and choose the option with highest chance of success", character: "Iron Man" },
+            { text: "Follow my moral compass and do what's right, even if difficult", character: "Captain America" },
+            { text: "Make the hard call that others aren't willing to make", character: "Black Widow" },
+            { text: "Trust my experience and instincts as a warrior", character: "Thor" },
+            { text: "Go with the direct approach that uses my strengths", character: "Hulk" },
+            { text: "Consider all angles and choose the most precise solution", character: "Hawkeye" }
+        ]
+    }
+];
+let currentQuestion = 0;
+        let answers = [];
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const progressElement = document.getElementById('progress');
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+            
+            // Update progress bar
+            progressElement.style.width = `${(currentQuestion / questions.length) * 100}%`;
+            
+            // Enable/disable prev button
+            prevButton.disabled = currentQuestion === 0;
+            
+            // Update next button text
+            nextButton.textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next';
+            
+            // Display current question
+            questionElement.textContent = questions[currentQuestion]?.question || "Sample question text";
+            
+            // Clear options
+            optionsElement.innerHTML = '';
+            
+            // Add options
+            if (questions[currentQuestion]) {
+                questions[currentQuestion].options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    if (answers[currentQuestion] === index) {
+                        optionElement.classList.add('selected');
+                    }
+                    optionElement.textContent = option.text;
+                    optionElement.addEventListener('click', () => selectOption(index));
+                    optionsElement.appendChild(optionElement);
+                });
+            } else {
+                // Sample options if questions aren't defined
+                for (let i = 0; i < 4; i++) {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = `Sample option ${i+1}`;
+                    optionElement.addEventListener('click', () => selectOption(i));
+                    optionsElement.appendChild(optionElement);
+                }
+            }
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                // No option selected, show warning or force selection
+                alert('Please select an option before continuing.');
+                return;
+            }
+            
+            if (currentQuestion < (questions.length - 1)) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                // Force show results even if there are no real questions
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function calculateResults() {
+            const results = {
+                "Iron Man": 0,
+                "Captain America": 0,
+                "Black Widow": 0,
+                "Thor": 0,
+                "Hulk": 0
+            };
+            
+            // For demonstration, create random results if no real answers exist
+            if (questions.length === 0 || answers.length === 0) {
+                Object.keys(results).forEach(character => {
+                    results[character] = Math.floor(Math.random() * 5) + 1; // Ensure some value
+                });
+                
+                // Make sure at least one character has a high score
+                const randomCharacter = Object.keys(results)[Math.floor(Math.random() * Object.keys(results).length)];
+                results[randomCharacter] = 10;
+            } else {
+                answers.forEach((answer, index) => {
+                    if (questions[index] && questions[index].options[answer]) {
+                        const selectedCharacter = questions[index].options[answer].character;
+                        if (selectedCharacter in results) {
+                            results[selectedCharacter]++;
+                        }
+                    }
+                });
+                
+                // If somehow all values are 0, add random values
+                if (Object.values(results).every(val => val === 0)) {
+                    Object.keys(results).forEach(character => {
+                        results[character] = Math.floor(Math.random() * 5) + 1;
+                    });
+                }
+            }
+            
+            // Convert to percentages
+            const total = Object.values(results).reduce((sum, val) => sum + val, 0);
+            const percentages = {};
+            
+            for (const character in results) {
+                percentages[character] = Math.round((results[character] / total) * 100);
+            }
+            
+            return percentages;
+        }
+
+        function showResults() {
+            const percentages = calculateResults();
+            const resultsPopup = document.getElementById('results-popup');
+            
+            // Find the top character
+            let topCharacter = "";
+            let topPercentage = 0;
+            
+            for (const character in percentages) {
+                if (percentages[character] > topPercentage) {
+                    topPercentage = percentages[character];
+                    topCharacter = character;
+                }
+            }
+            
+            // Default to first character if none found (shouldn't happen)
+            if (!topCharacter && characters.length > 0) {
+                topCharacter = characters[0].name;
+            }
+            
+            // Find the character object
+            const characterData = characters.find(char => char.name === topCharacter) || characters[0];
+            
+            // Update the result content
+            document.getElementById('character-name').textContent = characterData.name;
+            document.getElementById('character-description').textContent = characterData.description;
+            
+            // Create proper image element instead of using background-image
+            const imageContainer = document.getElementById('character-image');
+            imageContainer.innerHTML = '';
+            
+            const characterImg = document.createElement('img');
+            characterImg.src = characterData.image;
+            characterImg.alt = characterData.name;
+            characterImg.style.width = '100%';
+            characterImg.style.height = '100%';
+            characterImg.style.objectFit = 'cover';
+            characterImg.style.objectPosition = 'center';
+            characterImg.style.borderRadius = '50%';
+            characterImg.onerror = function() {
+                this.onerror = null;
+                this.src = '/api/placeholder/250/250';
+                this.alt = 'Character Image Placeholder';
+            };
+            
+            imageContainer.appendChild(characterImg);
+            
+            // Create chart data
+            const chartData = [];
+            for (const character in percentages) {
+                if (percentages[character] > 0) { // Only show characters with non-zero percentages
+                    const characterObj = characters.find(char => char.name === character);
+                    chartData.push({
+                        name: character,
+                        value: percentages[character],
+                        color: characterObj ? characterObj.color : '#e23636'
+                    });
+                }
+            }
+            
+            // Force add data if empty
+            if (chartData.length === 0) {
+                for (const char of characters) {
+                    chartData.push({
+                        name: char.name,
+                        value: 20,
+                        color: char.color
+                    });
+                }
+            }
+            
+            // Create pie chart
+            createPieChart(chartData);
+            
+            // Create legend
+            createLegend(chartData);
+            
+            // Show the popup
+            resultsPopup.style.display = 'block';
+        }
+
+        function createPieChart(data) {
+            // Clear previous chart
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            
+            // Set dimensions
+            const width = chartContainer.clientWidth || 500;
+            const height = chartContainer.clientHeight || 350;
+            const radius = Math.min(width, height) / 2 * 0.8;
+            
+            // Create SVG
+            const svg = d3.select('#chart-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, ${height / 2})`);
+            
+            // Create pie
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+            
+            // Define arc
+            const arc = d3.arc()
+                .innerRadius(radius * 0.4) // Donut hole size
+                .outerRadius(radius);
+            
+            // Enhanced arc for hover effect
+            const arcHover = d3.arc()
+                .innerRadius(radius * 0.4)
+                .outerRadius(radius * 1.08);
+                
+            // Add tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "d3-tooltip")
+                .style("position", "absolute")
+                .style("padding", "8px")
+                .style("background", "#333")
+                .style("color", "#fff")
+                .style("border-radius", "4px")
+                .style("font-size", "12px")
+                .style("pointer-events", "none")
+                .style("opacity", 0);
+                
+            // Add slices with animation
+            const slices = svg.selectAll('path')
+                .data(pie(data))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color)
+                .attr('stroke', '#121212') // Dark border for contrast
+                .attr('stroke-width', 2)
+                .style('transition', 'all 0.3s')
+                .on('mouseover', function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arcHover);
+                        
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    tooltip.html(`${d.data.name}: ${d.data.value}%`)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on('mouseout', function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arc);
+                        
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attrTween('d', function(d) {
+                    const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+                    return function(t) {
+                        return arc(interpolate(t));
+                    };
+                });
+                
+            // Add percentage labels
+            svg.selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .attr('transform', d => {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0]}, ${centroid[1]})`;
+                })
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em') // Vertical alignment
+                .text(d => d.data.value >= 10 ? `${d.data.value}%` : '') // Only show if segment is large enough
+                .style('fill', '#ffffff')
+                .style('font-weight', 'bold')
+                .style('font-size', '14px')
+                .style('text-shadow', '1px 1px 2px rgba(0, 0, 0, 0.7)')
+                .style('pointer-events', 'none') // Prevent text from blocking hover
+                .style('opacity', 0)
+                .transition()
+                .delay((d, i) => 1000 + i * 100)
+                .duration(500)
+                .style('opacity', 1);
+                
+            // Add center label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .text('Your Match')
+                .style('fill', '#e23636')
+                .style('font-size', '18px')
+                .style('font-weight', 'bold')
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+        }
+
+        function createLegend(data) {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+            
+            data.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = item.color;
+                
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = `${item.name} (${item.value}%)`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(nameLabel);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+
+        function restartQuiz() {
+            answers = [];
+            currentQuestion = 0;
+            document.getElementById('results-popup').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the first question
+            loadQuestion();
+            
+            // Event listeners
+            document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+            document.getElementById('next-btn').addEventListener('click', nextQuestion);
+            document.getElementById('close-results').addEventListener('click', () => {
+                document.getElementById('results-popup').style.display = 'none';
+            });
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+        });
+    </script>
+</body>
+</html>

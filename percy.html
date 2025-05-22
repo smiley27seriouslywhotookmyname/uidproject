@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percy Jackson Character Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #0a3b52;
+            color: #f0e6d2;
+            margin: 0;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" opacity="0.05"><path d="M250,250 L220,190 L160,170 L140,110 L90,90 L50,30 M250,250 L310,230 L330,180 L370,160 L390,110 L430,90 L450,30 M250,250 L280,310 L340,330 L360,390 L410,410 L450,470 M250,250 L190,270 L170,320 L130,340 L110,390 L70,410 L50,470" stroke="%23ffffff" stroke-width="2" fill="none"/></svg>');
+            background-repeat: repeat;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(61, 89, 114, 0.85);
+            border: 2px solid #d4b94e;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #d4b94e;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .quiz-container {
+            margin-top: 20px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #f0e6d2;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            background-color: #224762;
+            border: 1px solid #d4b94e;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background-color: #2d5675;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .option.selected {
+            background-color: #3b6b92;
+            border-color: #d4b94e;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #224762;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #d4b94e;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #d4b94e;
+            color: #0a3b52;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e6c860;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            background-color: #6c6c6c;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #results-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .results-content {
+            position: relative;
+            background-color: #0a3b52;
+            border: 3px solid #d4b94e;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(212, 185, 78, 0.5);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .character-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .character-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid #d4b94e;
+            margin-bottom: 20px;
+            background-color: #224762;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #d4b94e;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .character-name {
+            font-size: 2rem;
+            color: #d4b94e;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .character-description {
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close-results {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: transparent;
+            color: #d4b94e;
+            border: 1px solid #d4b94e;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-results:hover {
+            background-color: #d4b94e;
+            color: #0a3b52;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            height: 350px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+
+        .restart-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .character-image {
+                width: 180px;
+                height: 180px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Which Percy Jackson Character Are You?</h1>
+
+        <div id="quiz-container" class="quiz-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+
+            <div class="navigation">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="results-popup">
+        <div class="results-content">
+            <button class="close-results" id="close-results">×</button>
+
+            <div class="character-result">
+                <div class="character-image" id="character-image">
+                    [Character Image]
+                </div>
+                <h2 class="character-name" id="character-name"></h2>
+                <p class="character-description" id="character-description"></p>
+            </div>
+
+            <h3 style="text-align: center; color: #d4b94e;">Your Character Breakdown</h3>
+            <div class="chart-container" id="chart-container"></div>
+            <div class="legend" id="legend"></div>
+
+            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            {
+                name: "Percy Jackson",
+                description: "You are brave, loyal, and have a strong sense of justice. You are a natural leader and always stand up for what is right.",
+                image: "https://example.com/percy.jpg", // Replace with actual image URL
+                color: "#d4b94e" // Golden
+            },
+            {
+                name: "Annabeth Chase",
+                description: "You are intelligent, strategic, and resourceful. You have a keen mind and are always ready with a plan.",
+                image: "https://example.com/annabeth.jpg", // Replace with actual image URL
+                color: "#e57373" // Red
+            },
+            {
+                name: "Grover Underwood",
+                description: "You are kind, compassionate, and always looking out for others. You have a deep connection with nature.",
+                image: "https://example.com/grover.jpg", // Replace with actual image URL
+                color: "#81c784" // Green
+            },
+            {
+                name: "Luke Castellan",
+                description: "You are charismatic and have a strong presence. You have faced many challenges and have a complex personality.",
+                image: "https://example.com/luke.jpg", // Replace with actual image URL
+                color: "#5c6bc0" // Blue
+            },
+            {
+                name: "Nico di Angelo",
+                description: "You are introspective and have a deep understanding of the world. You are resilient and have a strong sense of duty.",
+                image: "https://example.com/nico.jpg", // Replace with actual image URL
+                color: "#7986cb" // Purple
+            },
+            {
+                name: "Thalia Grace",
+                description: "You are strong-willed and determined. You have a protective nature and are fiercely loyal to your friends.",
+                image: "https://example.com/thalia.jpg", // Replace with actual image URL
+                color: "#ffb74d" // Orange
+            }
+        ];
+
+        const questions = [
+            {
+                question: "When facing a difficult situation, you typically:",
+                options: [
+                    { text: "Face it head-on with courage", character: "Percy Jackson" },
+                    { text: "Analyze the situation and come up with a plan", character: "Annabeth Chase" },
+                    { text: "Seek support from friends and allies", character: "Grover Underwood" },
+                    { text: "Use your charm and wit to navigate the challenge", character: "Luke Castellan" },
+                    { text: "Reflect on past experiences to find a solution", character: "Nico di Angelo" },
+                    { text: "Stand your ground and protect those around you", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "Which quality do you value most in yourself?",
+                options: [
+                    { text: "Bravery and loyalty", character: "Percy Jackson" },
+                    { text: "Intelligence and strategic thinking", character: "Annabeth Chase" },
+                    { text: "Kindness and compassion", character: "Grover Underwood" },
+                    { text: "Charisma and leadership", character: "Luke Castellan" },
+                    { text: "Resilience and determination", character: "Nico di Angelo" },
+                    { text: "Strength and protectiveness", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "Your friends would say your greatest strength is:",
+                options: [
+                    { text: "Your courage and sense of justice", character: "Percy Jackson" },
+                    { text: "Your intelligence and problem-solving skills", character: "Annabeth Chase" },
+                    { text: "Your kindness and empathy", character: "Grover Underwood" },
+                    { text: "Your charm and ability to inspire others", character: "Luke Castellan" },
+                    { text: "Your resilience and depth of understanding", character: "Nico di Angelo" },
+                    { text: "Your strength and loyalty", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "When someone has wronged you, you usually:",
+                options: [
+                    { text: "Confront them directly but fairly", character: "Percy Jackson" },
+                    { text: "Think about the best way to resolve the issue", character: "Annabeth Chase" },
+                    { text: "Try to understand their perspective and forgive", character: "Grover Underwood" },
+                    { text: "Use your charm to diffuse the situation", character: "Luke Castellan" },
+                    { text: "Reflect on the experience and learn from it", character: "Nico di Angelo" },
+                    { text: "Stand up for yourself and set boundaries", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "What do you fear most?",
+                options: [
+                    { text: "Failing those who depend on you", character: "Percy Jackson" },
+                    { text: "Not being able to solve a problem", character: "Annabeth Chase" },
+                    { text: "Losing the trust of your friends", character: "Grover Underwood" },
+                    { text: "Being misunderstood or underestimated", character: "Luke Castellan" },
+                    { text: "Not living up to your potential", character: "Nico di Angelo" },
+                    { text: "Being unable to protect those you care about", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "In your free time, you prefer to:",
+                options: [
+                    { text: "Engage in physical activities or sports", character: "Percy Jackson" },
+                    { text: "Read or work on puzzles", character: "Annabeth Chase" },
+                    { text: "Spend time in nature or with animals", character: "Grover Underwood" },
+                    { text: "Socialize and meet new people", character: "Luke Castellan" },
+                    { text: "Reflect on your experiences and learn new things", character: "Nico di Angelo" },
+                    { text: "Train or practice self-defense", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "How do you view rules and traditions?",
+                options: [
+                    { text: "Important to respect while leading by example", character: "Percy Jackson" },
+                    { text: "Necessary for maintaining order and safety", character: "Annabeth Chase" },
+                    { text: "Guidelines that should be followed with compassion", character: "Grover Underwood" },
+                    { text: "Flexible and open to interpretation", character: "Luke Castellan" },
+                    { text: "Valuable connections to the past that should evolve", character: "Nico di Angelo" },
+                    { text: "To be followed with precise honor if just and noble", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "When working with others, you typically:",
+                options: [
+                    { text: "Take charge and delegate responsibilities", character: "Percy Jackson" },
+                    { text: "Offer thoughtful insights and fair judgments", character: "Annabeth Chase" },
+                    { text: "Create a warm atmosphere where everyone feels welcome", character: "Grover Underwood" },
+                    { text: "Inspire and motivate the team", character: "Luke Castellan" },
+                    { text: "Provide depth and strategic thinking", character: "Nico di Angelo" },
+                    { text: "Set a high standard through your own actions", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "How do you approach an adventure or journey?",
+                options: [
+                    { text: "By taking responsibility for those traveling with you", character: "Percy Jackson" },
+                    { text: "With practical preparation and necessary supplies", character: "Annabeth Chase" },
+                    { text: "With some hesitation but ultimately embracing the experience", character: "Grover Underwood" },
+                    { text: "Eagerly, seeing it as a chance for honorable deeds", character: "Luke Castellan" },
+                    { text: "As an opportunity to discover and restore what's been forgotten", character: "Nico di Angelo" },
+                    { text: "With determination and a focus on protecting the group", character: "Thalia Grace" }
+                ]
+            },
+            {
+                question: "What matters most to you in life?",
+                options: [
+                    { text: "Responsibility, leadership, and protecting others", character: "Percy Jackson" },
+                    { text: "Security, practicality, and caring for loved ones", character: "Annabeth Chase" },
+                    { text: "Kindness, genuine connections, and following your conscience", character: "Grover Underwood" },
+                    { text: "Honor, courage, and pursuing noble quests", character: "Luke Castellan" },
+                    { text: "Justice, wisdom, and learning from experience", character: "Nico di Angelo" },
+                    { text: "Strength, loyalty, and standing up for what is right", character: "Thalia Grace" }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function loadQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const progressElement = document.getElementById('progress');
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+
+            // Update progress bar
+            progressElement.style.width = `${(currentQuestion / questions.length) * 100}%`;
+
+            // Enable/disable prev button
+            prevButton.disabled = currentQuestion === 0;
+
+            // Update next button text
+            nextButton.textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next';
+
+            // Display current question
+            questionElement.textContent = questions[currentQuestion].question;
+
+            // Clear options
+            optionsElement.innerHTML = '';
+
+            // Add options
+            questions[currentQuestion].options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (answers[currentQuestion] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.textContent = option.text;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionElement);
+            });
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestion] === undefined) {
+                // No option selected, show warning or force selection
+                alert('Please select an option before continuing.');
+                return;
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function calculateResults() {
+            const results = {
+                "Percy Jackson": 0,
+                "Annabeth Chase": 0,
+                "Grover Underwood": 0,
+                "Luke Castellan": 0,
+                "Nico di Angelo": 0,
+                "Thalia Grace": 0
+            };
+
+            answers.forEach((answer, index) => {
+                const selectedCharacter = questions[index].options[answer].character;
+                results[selectedCharacter]++;
+            });
+
+            // Convert to percentages
+            const total = questions.length;
+            const percentages = {};
+
+            for (const character in results) {
+                percentages[character] = Math.round((results[character] / total) * 100);
+            }
+
+            return percentages;
+        }
+
+        function showResults() {
+            const percentages = calculateResults();
+            const resultsPopup = document.getElementById('results-popup');
+
+            // Find the top character
+            let topCharacter = "";
+            let topPercentage = 0;
+
+            for (const character in percentages) {
+                if (percentages[character] > topPercentage) {
+                    topPercentage = percentages[character];
+                    topCharacter = character;
+                }
+            }
+
+            // Find the character object
+            const characterData = characters.find(char => char.name === topCharacter);
+
+            // Update the result content
+            document.getElementById('character-name').textContent = characterData.name;
+            document.getElementById('character-description').textContent = characterData.description;
+
+            // Create proper image element
+            const imageContainer = document.getElementById('character-image');
+            imageContainer.innerHTML = '';
+
+            const characterImg = document.createElement('img');
+            characterImg.src = characterData.image;
+            characterImg.alt = characterData.name;
+            characterImg.style.width = '100%';
+            characterImg.style.height = '100%';
+            characterImg.style.objectFit = 'cover';
+            characterImg.style.objectPosition = 'center';
+            characterImg.style.borderRadius = '50%';
+
+            imageContainer.appendChild(characterImg);
+
+            // Create chart data
+            const chartData = [];
+            for (const character in percentages) {
+                if (percentages[character] > 0) { // Only show characters with non-zero percentages
+                    const characterObj = characters.find(char => char.name === character);
+                    chartData.push({
+                        name: character,
+                        value: percentages[character],
+                        color: characterObj.color
+                    });
+                }
+            }
+
+            // Create pie chart
+            createPieChart(chartData);
+
+            // Create legend
+            createLegend(chartData);
+
+            // Show the popup
+            resultsPopup.style.display = 'block';
+        }
+
+        function createPieChart(data) {
+            // Clear previous chart
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+
+            // Set dimensions
+            const width = chartContainer.clientWidth || 500;
+            const height = chartContainer.clientHeight || 350;
+            const radius = Math.min(width, height) / 2 * 0.8;
+
+            // Create SVG
+            const svg = d3.select('#chart-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+            // Create pie
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+
+            // Define arc
+            const arc = d3.arc()
+                .innerRadius(radius * 0.4) // Donut hole size
+                .outerRadius(radius);
+
+            // Enhanced arc for hover effect
+            const arcHover = d3.arc()
+                .innerRadius(radius * 0.4)
+                .outerRadius(radius * 1.08);
+
+            // Add tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "d3-tooltip")
+                .style("position", "absolute")
+                .style("padding", "8px")
+                .style("background", "#224762")
+                .style("color", "#f0e6d2")
+                .style("border-radius", "4px")
+                .style("font-size", "12px")
+                .style("pointer-events", "none")
+                .style("opacity", 0);
+
+            // Add slices with animation
+            const slices = svg.selectAll('path')
+                .data(pie(data))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', d => d.data.color)
+                .attr('stroke', '#0a3b52') // Dark border for contrast
+                .attr('stroke-width', 2)
+                .style('transition', 'all 0.3s')
+                .on('mouseover', function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arcHover);
+
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    tooltip.html(`${d.data.name}: ${d.data.value}%`)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                 .on('mouseout', function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', arc);
+
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attrTween('d', function(d) {
+                    const interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+                    return function(t) {
+                        return arc(interpolate(t));
+                    };
+                });
+
+            // Add percentage labels
+            svg.selectAll('text')
+                .data(pie(data))
+                .enter()
+                .append('text')
+                .attr('transform', d => {
+                    const centroid = arc.centroid(d);
+                    return `translate(${centroid[0]}, ${centroid[1]})`;
+                })
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em') // Vertical alignment
+                .text(d => d.data.value >= 10 ? `${d.data.value}%` : '') // Only show if segment is large enough
+                .style('fill', '#ffffff')
+                .style('font-weight', 'bold')
+                .style('font-size', '14px')
+                .style('text-shadow', '1px 1px 2px rgba(0, 0, 0, 0.7)')
+                .style('pointer-events', 'none') // Prevent text from blocking hover
+                .style('opacity', 0)
+                .transition()
+                .delay((d, i) => 1000 + i * 100)
+                .duration(500)
+                .style('opacity', 1);
+
+            // Add center label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .text('Your Match')
+                .style('fill', '#d4a44c')
+                .style('font-size', '18px')
+                .style('font-weight', 'bold')
+                .style('opacity', 0)
+                .transition()
+                .duration(500)
+                .style('opacity', 1);
+        }
+
+        function createLegend(data) {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+
+            data.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = item.color;
+
+                const nameLabel = document.createElement('span');
+                nameLabel.textContent = `${item.name} (${item.value}%)`;
+
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(nameLabel);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+
+        function restartQuiz() {
+            answers = [];
+            currentQuestion = 0;
+            document.getElementById('results-popup').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the first question
+            loadQuestion();
+
+            // Event listeners
+            document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+            document.getElementById('next-btn').addEventListener('click', nextQuestion);
+            document.getElementById('close-results').addEventListener('click', () => {
+                document.getElementById('results-popup').style.display = 'none';
+            });
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+        });
+    </script>
+</body>
+</html>
