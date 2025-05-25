@@ -124,19 +124,15 @@
     }
 
     .category-container::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
-      animation: subtle-glow 8s ease-in-out infinite alternate;
-    }
-
-    @keyframes subtle-glow {
-      0% { transform: rotate(0deg) scale(1); }
-      100% { transform: rotate(360deg) scale(1.1); }
+     content: '';
+     position: absolute;
+     top: -50%;
+     left: -50%;
+     width: 200%;
+     height: 200%;
+     background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+     z-index: 1;
+     pointer-events: none;
     }
 
     .category-header {
@@ -219,7 +215,6 @@
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-      transition: all 0.4s ease;
       border: 2px solid var(--border-color);
       position: relative;
       transform-style: preserve-3d;
@@ -228,7 +223,6 @@
     }
 
     .sub-category-box:hover {
-      transform: translateY(-15px) rotateX(5deg);
       box-shadow: 0 25px 60px rgba(124, 58, 237, 0.4);
       border-color: var(--accent-color);
     }
@@ -358,6 +352,21 @@
       padding-top: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
+	
+	.sub-category-btn {
+      background: linear-gradient(145deg, var(--accent-color), #9333ea);
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+      position: relative;
+      z-index: 20;
+      cursor: pointer;
+    }
 
     /* Media Queries */
     @media (max-width: 1200px) {
@@ -418,16 +427,16 @@
   <!-- Our Story Section -->
   <div class="category-container">
     <div class="category-header">
-      <img src="https://thumbs.dreamstime.com/b/fp-logo-heraldic-shield-shape-crown-vintage-crest-white-background-template-design-letter-343459647.jpg" alt="Our Team" class="main-category-image">
+      <img src="https://i.pinimg.com/736x/3e/28/c5/3e28c509f6a9d3637a7a7aa3f8a28a00.jpg" alt="Our Team" class="main-category-image">
       <div class="category-info">
         <h2 class="category-title">Our Story</h2>
         <p class="category-description">
           Fictional Fate was born from a simple idea: what if you could discover which fictional character truly matches your personality? 
-          Our team of psychology enthusiasts and pop culture nerds came together in 2020 to create scientifically-informed 
+          Our team of psychology enthusiasts and pop culture nerds came togetherto create scientifically-informed 
           yet fun personality quizzes that connect you with characters from your favorite movies, books, and TV shows.
         </p>
         <p class="category-description">
-          We combine elements of the Myers-Briggs Type Indicator (MBTI), the Big Five personality traits, and our own proprietary 
+          We combine elements of the Myers-Briggs Type Indicator (MBTI), and our own proprietary 
           algorithms to create accurate and entertaining character matches. Our mission is to help people better understand themselves 
           through the lens of the characters they love.
         </p>
@@ -483,7 +492,7 @@
   </div>
 
   <!-- FAQ Section -->
-  <div class="category-container">
+  <div class="category-container" id="FAQ">
     <h2 class="category-title" style="text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2>
     
     <div class="faq-item">
@@ -514,7 +523,7 @@
   </div>
 
   <!-- Contact Section -->
-  <div class="category-container">
+  <div class="category-container" id="con">
     <h2 class="category-title" style="text-align: center; margin-bottom: 40px;">Get In Touch</h2>
     <div class="sub-categories">
       <div style="text-align: center; font-size: 1.2rem;">
@@ -537,18 +546,8 @@
         <p>Explore your personality and find your fictional character matches with our fun and engaging quizzes.</p>
       </div>
       <div class="footer-section">
-        <h3>Quick Links</h3>
-        <a href="home.html">Home</a>
-        <a href="home.html#movie-quizzes">Movie Quizzes</a>
-        <a href="home.html#book-quizzes">Book Quizzes</a>
-        <a href="home.html#personality-tests">Personality Tests</a>
-      </div>
-      <div class="footer-section">
-        <h3>Information</h3>
-        <a href="about.html">About Us</a>
-        <a href="#privacy">Privacy Policy</a>
-        <a href="#terms">Terms of Service</a>
-      </div>
+	  <a href="realhome.html" class="sub-category-btn">Go Back to Home Page</a>
+       </div>
     </div>
     <div class="copyright">
       <p>&copy; 2025 Fictional Fate. All rights reserved.</p>
@@ -557,11 +556,7 @@
 </div>
 
 <script>
-  // Simple script for mobile menu toggle
-  document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-    document.querySelector('.nav-links').classList.toggle('show');
-  });
-
+  
   // Smooth scrolling for navigation links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
