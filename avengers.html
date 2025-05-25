@@ -234,11 +234,26 @@
             border-radius: 3px;
         }
         
-        .restart-button {
-            display: block;
-            margin: 20px auto 0;
+        .result-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .restart-button, .homepage-button {
             padding: 12px 25px;
             font-size: 1.1rem;
+            min-width: 180px;
+        }
+        
+        .homepage-button {
+            background-color: #2d5aa0;
+        }
+        
+        .homepage-button:hover {
+            background-color: #3a6bb8;
         }
         
         @media (max-width: 600px) {
@@ -257,6 +272,16 @@
             
             .chart-container {
                 height: 250px;
+            }
+            
+            .result-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .restart-button, .homepage-button {
+                width: 100%;
+                max-width: 250px;
             }
         }
     </style>
@@ -296,7 +321,11 @@
             <div class="chart-container" id="chart-container"></div>
             <div class="legend" id="legend"></div>
             
-            <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+           <div class="result-buttons">
+                <button class="restart-button" id="restart-btn">Take Quiz Again</button>
+                <button class="homepage-button" id="homepage-btn">Play More Quizzes</button>
+            </div>
+
         </div>
     </div>
 
@@ -807,6 +836,10 @@ let currentQuestion = 0;
             document.getElementById('results-popup').style.display = 'none';
             loadQuestion();
         }
+ function goToHomepage() {
+            window.location.href = 'index.html';
+        }
+
 
         // Initialize the quiz
         document.addEventListener('DOMContentLoaded', () => {
@@ -820,6 +853,8 @@ let currentQuestion = 0;
                 document.getElementById('results-popup').style.display = 'none';
             });
             document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+document.getElementById('homepage-btn').addEventListener('click', goToHomepage);
+
         });
     </script>
 </body>
